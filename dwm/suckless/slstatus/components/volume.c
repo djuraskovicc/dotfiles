@@ -1,12 +1,12 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "../util.h"
 #include "../slstatus.h"
 
-#define VOL_BUFF_SIZE 8
-#define MUTE_BUFF_SIZE 6
+#define VOL_BUFF_SIZE 16
+#define MUTE_BUFF_SIZE 12
 
 int 
 read_mute(FILE *file, char *mute)
@@ -14,12 +14,12 @@ read_mute(FILE *file, char *mute)
     file = popen("pamixer --get-mute", "r");
 
     if (file == NULL) {
-        return -1;
+        return 1;
     }
 
     if (fgets(mute, sizeof(mute), file) == NULL) {
         pclose(file);
-        return -2;
+        return 2;
     }
 
     pclose(file);
@@ -32,12 +32,12 @@ read_volume(FILE *file, char *vol)
     file = popen("pamixer --get-volume", "r");
 
     if (file == NULL) {
-        return -1;
+        return 1;
     }
 
     if (fgets(vol, sizeof(vol), file) == NULL) {
         pclose(file);
-        return -2;
+        return 2;
     }
 
     pclose(file);
@@ -75,3 +75,4 @@ volume(const char *unused)
     }
     return bprintf("🔊 %d%%", volume_lvl);
 }
+

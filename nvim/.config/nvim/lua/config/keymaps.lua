@@ -27,3 +27,41 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the up window
 -- Stay visual mode while indenting
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left in visual mode" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent left in visual mode" })
+
+-- Split term
+local job_id = 0
+local function open_terminal()
+  vim.cmd.vnew()
+  vim.cmd.term()
+  vim.cmd.wincmd("J")
+  vim.api.nvim_win_set_height(0, 15)
+  job_id = vim.b.terminal_job_id
+end
+
+vim.keymap.set('n', '<leader>st', open_terminal)
+
+-- I am trying to make following work
+-- Exit terminal mode with Ctrl + \
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "*",
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-\\>", [[<C-\><C-n>]], { noremap = true, silent = true })
+  end,
+})
+
+-- LaTeX compile
+vim.keymap.set("n", "<leader>cp", function ()
+  if job_id == 0 then
+    open_terminal()
+  end
+
+  local filename = vim.fn.expand("%:p")
+  if filename == "" then
+    print("No file to compile!")
+    return
+  end
+
+  local compile_cmd = "pdflatex " .. filename .. "\r\n"
+  vim.fn.chansend(job_id, compile_cmd)
+end)

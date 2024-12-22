@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* interval between updates (in ms) */
+#include <string.h>
 const unsigned int interval = 1000;
 
 /* text to show if no value can be retrieved */
@@ -73,5 +74,5 @@ static const struct arg args[] = {
     { volume,           " | %s",                    NULL                    },
     { battery_state,    " | %s",                    "BAT0"                  },
     { battery_perc,     " %s%%",                    "BAT0"                  },
-	{ datetime,         " | %s ",                   "📆 %a %d/%m/%Y %T"     },
+    { datetime,         " | %s ",                   "📆 %a %d/%m/%Y %T"     },
 };

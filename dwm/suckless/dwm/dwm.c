@@ -1,10 +1,12 @@
 /*
  *
- * Lines on which I have made changes 1485
+ * Lines on which I have made changes:
+ * 1485
  *
  * Uncomment line 1487 and 1488 if you want to always display useless gap 
  * and comment that if else statement above them
  *
+ * 442, 1741 added manual null termination because strncpy doesn't have it
  *
  */
 
@@ -440,6 +442,8 @@ void
 arrangemon(Monitor *m)
 {
 	strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof m->ltsymbol);
+  m->ltsymbol[sizeof m->ltsymbol - 1] = '\0'; // Guarantee null termination
+
 	if (m->lt[m->sellt]->arrange)
 		m->lt[m->sellt]->arrange(m);
 }
@@ -1739,6 +1743,7 @@ setlayout(const Arg *arg)
 	if (arg && arg->v)
 		selmon->lt[selmon->sellt] = (Layout *)arg->v;
 	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol);
+  selmon->ltsymbol[sizeof selmon->ltsymbol - 1] = '\0'; // Guarantee null termination
 	if (selmon->sel)
 		arrange(selmon);
 	else

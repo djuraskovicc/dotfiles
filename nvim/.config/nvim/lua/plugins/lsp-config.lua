@@ -40,7 +40,19 @@ return {
 			lspconfig.clangd.setup({ capabilities = capabilities })
 			lspconfig.zls.setup({ capabilities = capabilities })
 			lspconfig.jdtls.setup({ capabilities = capabilities })
-			lspconfig.pylsp.setup({ capabilities = capabilities })
+			lspconfig.pylsp.setup({
+        capabilities = capabilities,
+        settings = {
+          pylsp = {
+            plugins = {
+              pycodestyle = {
+                enabled = true,
+                ignore = { "E501" }
+              }
+            }
+          }
+        }
+      })
 			lspconfig.cssls.setup({ capabilities = capabilities })
 			lspconfig.html.setup({ capabilities = capabilities })
 

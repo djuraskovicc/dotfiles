@@ -39,15 +39,15 @@ static const char *fonts[]          = { "JetBrainsMono Nerd Font:style=Bold:size
 // col_cyan  = "#B2BA68"
 
 //background color
-static const char col_gray1[]       = "#394A2E";
+static const char col_gray1[]       = "#13294B";
 //inactive window border color
 static const char col_gray2[]       = "#444444";
 //font color
 static const char col_gray3[]       = "#bdbdbd";
 //current tag and current window font
-static const char col_gray4[]       = "#394A2E";
+static const char col_gray4[]       = "#13294B";
 //Top bar second color and active window border color
-static const char col_cyan[]        = "#B2BA68";
+static const char col_cyan[]        = "#9DB9D5";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -122,12 +122,12 @@ static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_r,      spawn,          {.v = roficmd } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = passmenu } },
-    { MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
-	{ MODKEY,	                    XK_Return, spawn,          {.v = termcmd } },
+  { MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
+	{ MODKEY,	                      XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY|ShiftMask,	            XK_k,      spawn,          {.v = kitty } },
-	{ MODKEY,	                    XK_e,      spawn,          {.v = thunar } },
-	{ MODKEY,	                    XK_w,      spawn,          {.v = zen } },
-	{ MODKEY,	                    XK_b,      spawn,          {.v = brave } },
+	{ MODKEY,	                      XK_e,      spawn,          {.v = thunar } },
+	{ MODKEY,	                      XK_w,      spawn,          {.v = zen } },
+	{ MODKEY,	                      XK_b,      spawn,          {.v = brave } },
 	{ MODKEY,                       XK_f,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -135,9 +135,9 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_Return, zoom,           {0} },
+	{ MODKEY,                       XK_z,      zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY,	                    XK_q,      killclient,     {0} },
+	{ MODKEY,	                      XK_q,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_y,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_u,      setlayout,      {.v = &layouts[2]} },
@@ -161,13 +161,13 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
 
     /* Volume control keys */
-    { 0,             XF86XK_AudioLowerVolume,  spawn,          {.v = downvol } },
+  { 0,             XF86XK_AudioLowerVolume,  spawn,          {.v = downvol } },
 	{ 0,             XF86XK_AudioMute,         spawn,          {.v = mutevol } },
 	{ 0,             XF86XK_AudioRaiseVolume,  spawn,          {.v = upvol   } },
     /* Brightness control keys */
-    { 0,             XF86XK_MonBrightnessUp,   spawn,          {.v = upbright } },
+  { 0,             XF86XK_MonBrightnessUp,   spawn,          {.v = upbright } },
 	{ 0,             XF86XK_MonBrightnessDown, spawn,          {.v = downbright } },
-    { MODLAY,        XK_space,                 spawn,          {.v = keymap }}
+  { MODLAY,        XK_space,                 spawn,          {.v = keymap }}
 };
 
 /* button definitions */

@@ -15,17 +15,15 @@ XINERAMAFLAGS = -DXINERAMA
 # freetype
 FREETYPELIBS = -lfontconfig -lXft
 FREETYPEINC = /usr/include/freetype2
-# OpenBSD (uncomment)
-#FREETYPEINC = $(X11INC)/freetype2
-#MANPREFIX = ${PREFIX}/man
 
 # includes and libs
 INCS = -I$(X11INC) -I$(FREETYPEINC)
 LIBS = -L$(X11LIB) -lX11 $(XINERAMALIBS) $(FREETYPELIBS)
 
 # flags
-CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\" $(XINERAMAFLAGS)
-CFLAGS   = -std=c99 -pedantic -Wall -Os $(INCS) $(CPPFLAGS)
+CPPFLAGS = -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700L -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\" $(XINERAMAFLAGS)
+CFLAGS   = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -O3 -march=znver3 -mtune=native -pipe \
+					 -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(INCS) $(CPPFLAGS)
 LDFLAGS  = $(LIBS)
 
 # compiler and linker

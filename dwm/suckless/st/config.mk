@@ -21,16 +21,10 @@ LIBS = -L$(X11LIB) -lm -lrt -lX11 -lutil -lXft -lXrender\
        `$(PKG_CONFIG) --libs freetype2`
 
 # flags
-STCPPFLAGS = -DVERSION=\"$(VERSION)\" -D_XOPEN_SOURCE=600
-STCFLAGS = $(INCS) $(STCPPFLAGS) $(CPPFLAGS) $(CFLAGS)
-STLDFLAGS = $(LIBS) $(LDFLAGS)
-
-# OpenBSD:
-#CPPFLAGS = -DVERSION=\"$(VERSION)\" -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
-#LIBS = -L$(X11LIB) -lm -lX11 -lutil -lXft \
-#       `$(PKG_CONFIG) --libs fontconfig` \
-#       `$(PKG_CONFIG) --libs freetype2`
-#MANPREFIX = ${PREFIX}/man
+STCPPFLAGS = -DVERSION=\"$(VERSION)\" -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700L
+STCFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -O3 -march=znver3 -mtune=native -pipe \
+					 -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(INCS) $(STCPPFLAGS)
+STLDFLAGS = $(LIBS)
 
 # compiler and linker
-# CC = c99
+CC = cc

@@ -133,7 +133,7 @@ bindkey '^t' tmux_project                           # Search with fzf and open i
 bindkey '^z' zellij_project                         # Search with fzf and open in zellij
 
 ### ALIASES ###
-alias ls='ls --human-readable --color=auto'
+alias ls='eza --group-directories-first -lha'
 alias grep='grep --color=auto'
 alias cleardirs="while popd >/dev/null 2>&1; do :; done"
 alias clock="sudo $HOME/scripts/powercfg.sh"
@@ -142,13 +142,10 @@ alias rec="$HOME/scripts/rec.sh"
 alias die="poweroff"
 alias reboot="reboot"
 
-### EXPORTS ###
-export PATH="$HOME/.config/emacs/bin:$PATH"
-
 ### LOOK AND FEEL ###
 
 # Useless ASCII at startup
-words=("I use arch btw" "Autumn" "GNU/Linux" "This is zsh" "Toxic" "Okay" "Hacker" "Ubuntoo" "FOSS")	# Define array of strings
+words=("I use arch btw" "Winter" "GNU/Linux" "This is zsh" "Toxic" "Okay" "Hacker" "Ubuntoo" "FOSS")  	# Define array of strings
 random_index=$(( 1 + RANDOM % "${#words[@]}" ))                                                         # Pick random index
 figlet -t -c -f ANSI-Shadow $words[$random_index] | lolcat --seed 8                                     # ASCII art at the start
 

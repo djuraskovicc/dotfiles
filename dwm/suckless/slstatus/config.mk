@@ -11,11 +11,11 @@ X11INC = /usr/X11R6/include
 X11LIB = /usr/X11R6/lib
 
 # flags
-CPPFLAGS = -I$(X11INC) -D_DEFAULT_SOURCE -DVERSION=\"${VERSION}\"
-CFLAGS   = -std=c99 -pedantic -Wall -Wextra -Wno-unused-parameter -Os
+CPPFLAGS = -I$(X11INC) -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700L -DVERSION=\"${VERSION}\"
+CFLAGS   = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -O3 -march=znver3 -mtune=native -pipe \
+					 -fstack-protector-strong -D_FORTIFY_SOURCE=2
+
 LDFLAGS  = -L$(X11LIB) -s
-# OpenBSD: add -lsndio
-# FreeBSD: add -lkvm -lsndio
 LDLIBS   = -lX11
 
 # compiler and linker
