@@ -2,6 +2,7 @@
 
 // Including header file for XF86 keys (function keys)
 #include <X11/XF86keysym.h>
+#include <X11/keysym.h>
 
 /* appearance */
 static const unsigned int borderpx  = 3;       /* border pixel of windows */
@@ -167,7 +168,15 @@ static const Key keys[] = {
     /* Brightness control keys */
   { 0,             XF86XK_MonBrightnessUp,   spawn,          {.v = upbright } },
 	{ 0,             XF86XK_MonBrightnessDown, spawn,          {.v = downbright } },
-  { MODLAY,        XK_space,                 spawn,          {.v = keymap }}
+  { MODLAY,        XK_space,                 spawn,          {.v = keymap }},
+
+    /* Same but for external keyboards without Fn lock. Using just F keys */
+  { 0,             XK_F1,                    spawn,          { .v = mutevol } },
+  { 0,             XK_F3,                    spawn,          { .v = upvol } }, // These two swapped for some reason
+  { 0,             XK_F2,                    spawn,          { .v = downvol } },
+    /* Brightness control keys */
+  { 0,             XK_F6,                    spawn,          { .v = upbright } }, // These also
+  { 0,             XK_F5,                    spawn,          { .v = downbright } }
 };
 
 /* button definitions */
