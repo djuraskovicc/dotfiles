@@ -109,45 +109,31 @@ function tmux_project(){
 }
 zle -N tmux_project # Create widget
 
-function zellij_project(){
-    zle -I
-    project_dir=$(find . -type d -iname "*" | fzf)
-    session_name=$(basename "$project_dir")
-    if [ -n "$project_dir" ]; then
-        # Change to the selected project directory and start zellij
-        (
-            exec </dev/tty
-            exec <&1
-            cd "$project_dir"
-            exec zellij -s "$session_name" --layout ~/.config/zellij/devlayout.kdl
-        )
-    fi
-}
-zle -N zellij_project # Create widget
-
 # Actual keybindings
 bindkey '^n' history-search-forward                 # History command search forward
 bindkey '^p' history-search-backward                # History command search backward
 bindkey '^f' nvim_fzf                               # Search with fzf and open in neovim
 bindkey '^t' tmux_project                           # Search with fzf and open in tmux
-bindkey '^z' zellij_project                         # Search with fzf and open in zellij
 
 ### ALIASES ###
 alias ls='eza --group-directories-first -lha'
+alias cat='bat -H -l'
+alias disk='dysk'
 alias grep='grep --color=auto'
 alias cleardirs="while popd >/dev/null 2>&1; do :; done"
 alias clock="sudo $HOME/scripts/powercfg.sh"
-alias jcompile="$HOME/scripts/compile2j.sh"
 alias rec="$HOME/scripts/rec.sh"
 alias die="poweroff"
-alias reboot="reboot"
+alias neofetch="fastfetch"
 
 ### LOOK AND FEEL ###
 
 # Useless ASCII at startup
-words=("I use arch btw" "Winter" "GNU/Linux" "This is zsh" "Toxic" "Okay" "Hacker" "Ubuntoo" "FOSS")  	# Define array of strings
+words=("I use arch btw" "Spring" "GNU/Linux" "This is zsh" "Toxic" "Okay" "Hacker" "Ubuntoo" "FOSS")  	# Define array of strings
 random_index=$(( 1 + RANDOM % "${#words[@]}" ))                                                         # Pick random index
-figlet -t -c -f ANSI-Shadow $words[$random_index] | lolcat --seed 8                                     # ASCII art at the start
+
+# seed 8 winter colors
+figlet -t -c -f ANSI-Shadow $words[$random_index] | lolcat --seed 25                                    # ASCII art at the start
 
 # Starship prompt
 eval "$(starship init zsh)"

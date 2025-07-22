@@ -1487,7 +1487,7 @@ resizeclient(Client *c, int x, int y, int w, int h)
 			gapincr = 2 * gappx;
 		}
 
-        // gapoffset = gappx;
+    // gapoffset = gappx;
 		// gapincr = 2 * gappx;
 	}
 

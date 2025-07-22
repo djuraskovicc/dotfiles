@@ -10,10 +10,10 @@ return {
 				"lua_ls",
 				"rust_analyzer",
 				"clangd",
-				"zls",
 				"pylsp",
 				"cssls",
 				"html",
+				"ts_ls",
 			},
 		},
 	},
@@ -55,6 +55,7 @@ return {
 			})
 			lspconfig.cssls.setup({ capabilities = capabilities })
 			lspconfig.html.setup({ capabilities = capabilities })
+			lspconfig.ts_ls.setup({ capabilities = capabilities })
 
 			vim.keymap.set("n", "<leader>re", vim.lsp.buf.rename, { desc = "[R]ename Variable Globally" })
 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ctions" })

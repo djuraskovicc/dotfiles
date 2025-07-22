@@ -23,32 +23,38 @@ static const char *fonts[]          = { "JetBrainsMono Nerd Font:style=Bold:size
 
 // Summer colors
 // col_gray1 = "#222222"
-// col_gray3 = "#bbbbbb"
+// col_gray3 = "#BBBBBB"
 // col_gray4 = "#262626"
 // col_cyan  = "#f6be00"
 
 // Winter colors
 // col_gray1 = "#13294B"
-// col_gray3 = "#bdbdbd"
+// col_gray3 = "#BDBDBD"
 // col_gray4 = "#13294B"
 // col_cyan  = "#9DB9D5"
 
 // Autumn colors
 // col_gray1 = "#394A2E"
-// col_gray3 = "#bdbdbd"
+// col_gray3 = "#BDBDBD"
 // col_gray4 = "#394A2E"
 // col_cyan  = "#B2BA68"
 
+// Spring colors
+// col_gray1 = "#1F5533"
+// col_gray3 = "#BDBDBD"
+// col_gray4 = "#1F5533"
+// col_cyan  = "#0EBECE"
+
 //background color
-static const char col_gray1[]       = "#13294B";
+static const char col_gray1[]       = "#1F5533";
 //inactive window border color
 static const char col_gray2[]       = "#444444";
 //font color
-static const char col_gray3[]       = "#bdbdbd";
+static const char col_gray3[]       = "#BDBDBD";
 //current tag and current window font
-static const char col_gray4[]       = "#13294B";
+static const char col_gray4[]       = "#1F5533";
 //Top bar second color and active window border color
-static const char col_cyan[]        = "#9DB9D5";
+static const char col_cyan[]        = "#0EBECE";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -56,7 +62,7 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { " ", " ", " ", " ", " ", " ", " ", " ", " " };
+static const char *tags[] = { " ", " ", " ", " ", " ", " ", " ", " ", " " }; // ungoogled-chromium
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -110,11 +116,11 @@ static const char *upbright[]       = { "brightnessctl", "set", "5%+", NULL };
 static const char *downbright[]     = { "brightnessctl", "set", "5%-", NULL };
 
 /* Programs */
-static const char *zen[]            = { "zen-browser", NULL };
+static const char *chromium[]       = { "chromium", NULL };
 static const char *brave[]          = { "brave", NULL };
 static const char *thunar[]         = { "thunar", NULL };
 static const char *passmenu[]       = { "passmenu", "-sb", col_cyan, "-nb", col_gray4, "-nf", col_gray3, "-sf", col_gray4, NULL };
-static const char *kitty[]          = { "kitty", NULL }; // Why not have another one...
+static const char *wezterm[]        = { "wezterm", NULL }; // Why not have another one...
 
 /* Change keyboard layout */
 static const char *keymap[]         = { "kblayout", "us", "me", NULL };
@@ -125,9 +131,9 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_p,      spawn,          {.v = passmenu } },
   { MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
 	{ MODKEY,	                      XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY|ShiftMask,	            XK_k,      spawn,          {.v = kitty } },
+	{ MODKEY|ShiftMask,	            XK_Return, spawn,          {.v = wezterm } },
 	{ MODKEY,	                      XK_e,      spawn,          {.v = thunar } },
-	{ MODKEY,	                      XK_w,      spawn,          {.v = zen } },
+	{ MODKEY,	                      XK_w,      spawn,          {.v = chromium } },
 	{ MODKEY,	                      XK_b,      spawn,          {.v = brave } },
 	{ MODKEY,                       XK_f,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },

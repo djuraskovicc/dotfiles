@@ -1,0 +1,12 @@
+# Background and colors
+theme="catppuccin-mocha"
+background-opacity=0.8
+window-decoration=false
+
+# Font
+font-size=14
+font-style-bold=true
+
+# Keybinds
+keybind = alt+k=scroll_page_lines:-10
+keybind = alt+j=scroll_page_lines:10
