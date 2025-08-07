@@ -38,7 +38,6 @@ return {
 
 			lspconfig.clangd.setup({ capabilities = capabilities })
 			lspconfig.zls.setup({ capabilities = capabilities })
-			lspconfig.jdtls.setup({ capabilities = capabilities })
 			lspconfig.pylsp.setup({
 				capabilities = capabilities,
         -- This ignores max length of the line for python lsp

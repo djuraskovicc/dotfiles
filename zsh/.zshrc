@@ -126,6 +126,10 @@ alias rec="$HOME/scripts/rec.sh"
 alias die="poweroff"
 alias neofetch="fastfetch"
 
+### EXPORTS ###
+export PATH="$PATH:$HOME/Android/Sdk/platform-tools"
+export PROOTARCH="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/archlinux/root"
+
 ### LOOK AND FEEL ###
 
 # Useless ASCII at startup

@@ -134,6 +134,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,	            XK_Return, spawn,          {.v = wezterm } },
 	{ MODKEY,	                      XK_e,      spawn,          {.v = thunar } },
 	{ MODKEY,	                      XK_w,      spawn,          {.v = chromium } },
+	{ MODKEY|ShiftMask,	            XK_w,      spawn,          SHCMD("lynx_launch.sh") },
 	{ MODKEY,	                      XK_b,      spawn,          {.v = brave } },
 	{ MODKEY,                       XK_f,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
