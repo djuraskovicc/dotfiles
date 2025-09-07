@@ -1,0 +1,59 @@
+# 
+# Petar Dj LF configuration
+#
+
+# Interpreter for shell commands
+set shell sh
+
+# Basic settings
+set hidden true
+set ignorecase true
+set icons true
+
+# Use the preview script for previews
+# This only works on kitty terminal emulator!
+# I will add suport fox sixel probably. Just read the wiki https://github.com/gokcehan/lf/wiki/Previews
+set previewer ~/.config/lf/lfpreview
+set cleaner ~/.config/lf/clean
+
+# Custom functions
+cmd mkdir ${{
+    printf "Directory name: "
+    read dir_name
+    mkdir $dir_name
+}}
+
+cmd mkfile ${{
+    printf "File name: "
+    read file_name
+    touch $file_name
+}}
+
+cmd extract ${{
+    case $f in
+        *.tar) tar xvf $f;;
+        *.tar.gz) tar xzvf $f;;
+        *.tar.xz) tar xJvf $f;;
+        *.zip) unzip $f;;
+        *.rar) unrar x $f;;
+        *.) echo "Unsupported file format!" ;;
+    esac
+}}
+
+# Open file in Neovim
+map e $nvim "$f"
+
+# Keyboard shortcuts
+map ae extract
+map af mkfile
+map ad mkdir
+
+# Movement
+map gD cd ~/Downloads
+map gd cd ~/Desktop
+map gp cd ~/Pictures
+map gc cd ~/.config
+map gv cd ~/Videos
+
+# Clear clipboard
+map C :clear
