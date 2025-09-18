@@ -74,6 +74,7 @@ if [[ ! -f $HISTFILE ]]; then
     touch $HISTFILE
 fi
 
+setopt correct
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
