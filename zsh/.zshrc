@@ -133,11 +133,12 @@ export PROOTARCH="/data/data/com.termux/files/usr/var/lib/proot-distro/installed
 ### LOOK AND FEEL ###
 
 # Useless ASCII at startup
-words=("I use arch btw" "Spring" "GNU/Linux" "This is zsh" "Okay" "Hacker" "Ubuntoo" "FOSS")  	# Define array of strings
+words=("I use arch btw" "Autumn" "GNU/Linux" "This is zsh" "Okay" "Hacker" "Ubuntoo" "FOSS")  	# Define array of strings
 random_index=$(( 1 + RANDOM % "${#words[@]}" ))                                                 # Pick random index
 
 # seed 8 winter colors
-figlet -t -c -f ANSI-Shadow $words[$random_index] | lolcat --seed 25                            # ASCII art at the start
+# seed 25 spring
+figlet -t -c -f ANSI-Shadow $words[$random_index] | lolcat --seed 18                            # ASCII art at the start
 
 # Starship prompt
 eval "$(starship init zsh)"

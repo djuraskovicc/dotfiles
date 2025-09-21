@@ -46,15 +46,15 @@ static const char *fonts[]          = { "JetBrainsMono Nerd Font:style=Bold:size
 // col_cyan  = "#0EBECE"
 
 //background color
-static const char col_gray1[]       = "#1F5533";
+static const char col_gray1[]       = "#394A2E";
 //inactive window border color
 static const char col_gray2[]       = "#444444";
 //font color
 static const char col_gray3[]       = "#BDBDBD";
 //current tag and current window font
-static const char col_gray4[]       = "#1F5533";
+static const char col_gray4[]       = "#394A2E";
 //Top bar second color and active window border color
-static const char col_cyan[]        = "#0EBECE";
+static const char col_cyan[]        = "#B2BA68";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
