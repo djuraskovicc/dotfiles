@@ -84,50 +84,21 @@ setopt hist_ignore_dups
 setopt hist_find_no_dups
 
 ### KEYBINDINGS ###
-
-# Keybinding funcitons
-function nvim_fzf(){
-    zle -I
-    file=$(find . -type f -iname "*" | fzf)
-    if [ -n "$file" ]; then
-        nvim "$file"
-    fi
-}
-zle -N nvim_fzf         # Create widget
-
-function tmux_project(){
-    zle -I
-    project_dir=$(find . -type d -iname "*" | fzf)
-    session_name=$(basename "$project_dir")
-    if [ -n "$project_dir" ]; then
-        # Initialize subshell correctly
-        (
-            exec </dev/tty
-            exec <&1
-            tmux new-session -c "$project_dir" -s "$session_name"
-        )
-    fi
-}
-zle -N tmux_project # Create widget
-
-# Actual keybindings
 bindkey '^n' history-search-forward                 # History command search forward
 bindkey '^p' history-search-backward                # History command search backward
-bindkey '^f' nvim_fzf                               # Search with fzf and open in neovim
-bindkey '^t' tmux_project                           # Search with fzf and open in tmux
 
 ### ALIASES ###
 alias ls='eza --group-directories-first -lghao'
 alias disk='dysk'
 alias grep='grep --color=auto'
-alias cleardirs="while popd >/dev/null 2>&1; do :; done"
-alias clock="sudo -E powercfg.sh"
+alias clock="doas powercfg.sh"
 alias die="poweroff"
 alias neofetch="fastfetch"
+alias sudo="doas"
+alias n="nvim_fzf.sh"
+alias t="tmux_project.sh"
 
 ### EXPORTS ###
-export PATH="$PATH:$HOME/Android/Sdk/platform-tools"
-export PROOTARCH="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/archlinux/root"
 [ -f ~/.profile ] && source ~/.profile
 
 ### LOOK AND FEEL ###

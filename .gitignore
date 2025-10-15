@@ -13,6 +13,12 @@ dwm/suckless/st/st
 dwm/suckless/st/*.o
 fish/.config/fish/fish_variables
 nvim/.config/nvim/lazy-lock.json
+programs/src/health/target/
+programs/src/kblayout/target/
+programs/src/slideshow/target/
+programs/src/timer/target/
+programs/src/nsxiv/*.o
+programs/src/nsxiv/nsxiv
 programs/bin/*
 !programs/bin/
 !programs/bin/*.sh

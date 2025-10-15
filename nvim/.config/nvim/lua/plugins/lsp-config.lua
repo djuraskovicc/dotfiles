@@ -12,9 +12,6 @@ return {
         "bashls",
         "clangd",
         "pylsp",
-        "cssls",
-        "html",
-        "ts_ls",
       },
     },
   },
@@ -45,9 +42,6 @@ return {
         },
         lua_ls = default,
         clangd = default,
-        cssls = default,
-        html = default,
-        ts_ls = default,
         bashls = default,
       }
 

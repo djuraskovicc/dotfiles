@@ -3,6 +3,7 @@
 
 # Dual monitor setup. You can commant this if you have one monitor
 xrandr --output HDMI-1 --above eDP-1 --mode 1920x1080
+xhost +SI:localuser:$(whoami)
 
 setxkbmap us
 # Here I made program that will cycle through wallpapers

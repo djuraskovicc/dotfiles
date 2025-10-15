@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 query=$(dmenu -p "DuckDuckGo search: " < /dev/null)
 
@@ -6,7 +6,7 @@ query=$(dmenu -p "DuckDuckGo search: " < /dev/null)
 [ -z "$query" ] && exit 0
 
 # URL-encode spaces as '+'
-enc=$(sed 's/ /+/g' <<< "$query")
+enc=$(echo "$query" | sed 's/ /+/g')
 url="https://lite.duckduckgo.com/lite/?q=${enc}"
 
 # Launch lynx inside a new st terminal

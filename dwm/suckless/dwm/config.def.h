@@ -117,7 +117,6 @@ static const char *downbright[]     = { "brightnessctl", "set", "5%-", NULL };
 
 /* Programs */
 static const char *zenbrowser[]     = { "zen-browser", NULL };
-static const char *brave[]          = { "brave", NULL };
 static const char *thunar[]         = { "thunar", NULL };
 static const char *passmenu[]       = { "passmenu", "-sb", col_cyan, "-nb", col_gray4, "-nf", col_gray3, "-sf", col_gray4, NULL };
 static const char *wezterm[]        = { "wezterm", NULL }; // Why not have another one...
@@ -134,9 +133,8 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,	            XK_Return, spawn,          {.v = wezterm } },
 	{ MODKEY,	                      XK_e,      spawn,          {.v = thunar } },
 	{ MODKEY,	                      XK_w,      spawn,          {.v = zenbrowser } },
-	{ MODKEY|ShiftMask,	            XK_w,      spawn,          SHCMD("lynx_launch.sh") },
+	{ MODKEY,	                      XK_b,      spawn,          SHCMD("lynx_launch.sh") },
 	{ MODKEY|ShiftMask,	            XK_s,      spawn,          SHCMD("screenshot.sh") },
-	{ MODKEY,	                      XK_b,      spawn,          {.v = brave } },
 	{ MODKEY,                       XK_f,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
