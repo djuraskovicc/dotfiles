@@ -11,7 +11,7 @@ config.font_size = 14
 config.enable_tab_bar = false
 config.window_decorations = "TITLE | RESIZE"
 
-config.window_background_opacity = 0.7
+config.window_background_opacity = 0.9
 config.color_scheme = "Chalk (dark) (terminal.sexy)"
 config.window_padding = {
     left = 0,

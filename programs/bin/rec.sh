@@ -16,8 +16,8 @@ MONITOR_OFFSET="0,0" # Coordinates for HDMI-1 from xrandr output
 
 # Audio device
 echo "You can run 'pactl list sources short' to see available audio sources"
-echo "In my case it is 2\n"
-AUDIO_SOURCE=2
+echo "In my case it is 1\n"
+AUDIO_SOURCE=1
 
 read -p "Enter framerate (default $FPS): " input
 FPS=${input:-$FPS}
