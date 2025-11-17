@@ -46,15 +46,15 @@ static const char *fonts[]          = { "JetBrainsMono Nerd Font:style=Bold:size
 // col_cyan  = "#0EBECE"
 
 //background color
-static const char col_gray1[]       = "#394A2E";
+static const char col_gray1[]       = "#13294B";
 //inactive window border color
 static const char col_gray2[]       = "#444444";
 //font color
 static const char col_gray3[]       = "#BDBDBD";
 //current tag and current window font
-static const char col_gray4[]       = "#394A2E";
+static const char col_gray4[]       = "#13294B";
 //Top bar second color and active window border color
-static const char col_cyan[]        = "#B2BA68";
+static const char col_cyan[]        = "#9DB9D5";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -118,6 +118,7 @@ static const char *downbright[]     = { "brightnessctl", "set", "5%-", NULL };
 /* Programs */
 static const char *zenbrowser[]     = { "zen-browser", NULL };
 static const char *thunar[]         = { "thunar", NULL };
+static const char *emacs[]          = { "emacs", NULL };
 static const char *passmenu[]       = { "passmenu", "-sb", col_cyan, "-nb", col_gray4, "-nf", col_gray3, "-sf", col_gray4, NULL };
 static const char *wezterm[]        = { "wezterm", NULL }; // Why not have another one...
 
@@ -131,11 +132,12 @@ static const Key keys[] = {
   { MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
 	{ MODKEY,	                      XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY|ShiftMask,	            XK_Return, spawn,          {.v = wezterm } },
-	{ MODKEY,	                      XK_e,      spawn,          {.v = thunar } },
+	{ MODKEY,	                      XK_e,      spawn,          {.v = emacs } },
+	{ MODKEY,	                      XK_f,      spawn,          {.v = thunar } },
 	{ MODKEY,	                      XK_w,      spawn,          {.v = zenbrowser } },
 	{ MODKEY,	                      XK_b,      spawn,          SHCMD("lynx_launch.sh") },
 	{ MODKEY|ShiftMask,	            XK_s,      spawn,          SHCMD("screenshot.sh") },
-	{ MODKEY,                       XK_f,      togglebar,      {0} },
+	{ MODKEY,                       XK_g,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },

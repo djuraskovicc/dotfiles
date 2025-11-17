@@ -15,7 +15,8 @@ vim.opt.updatetime = 50             -- set faster completion (50 ms)
 vim.opt.writebackup = false         -- prevent editing of files being edited elsewhere
 vim.opt.cursorline = true           -- highlight current line
 vim.opt.cursorcolumn = true         -- highlight current column 
--- vim.opt.colorcolumn = '110'         -- color the right border of where my code should wrap around
+vim.opt.colorcolumn = '100'         -- color the right border of where my code should wrap around
+vim.opt.guicursor = 'n-v-c-sm-i-ci-ve-r-cr-o:block'
 
 -- Basic column settings
 vim.opt.number = true               -- display line numbers

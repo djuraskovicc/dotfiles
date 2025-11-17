@@ -100,16 +100,18 @@ alias t="tmux_project.sh"
 
 ### EXPORTS ###
 [ -f ~/.profile ] && source ~/.profile
+export PATH="$HOME/.config/emacs/bin:$PATH"
 
 ### LOOK AND FEEL ###
 
 # Useless ASCII at startup
-words=("I use arch btw" "Autumn" "GNU/Linux" "This is zsh" "Okay" "Hacker" "Ubuntoo" "FOSS")  	# Define array of strings
+words=("I use arch btw" "Winter" "GNU/Linux" "This is zsh" "Okay" "Hacker" "Ubuntoo" "FOSS")  	# Define array of strings
 random_index=$(( 1 + RANDOM % "${#words[@]}" ))                                                 # Pick random index
 
 # seed 8 winter colors
 # seed 25 spring
-figlet -t -c -f ANSI-Shadow $words[$random_index] | lolcat --seed 18                            # ASCII art at the start
+# seed 18 autumn
+figlet -t -c -f ANSI-Shadow $words[$random_index] | lolcat --seed 8                             # ASCII art at the start
 
 # Starship prompt
 eval "$(starship init zsh)"

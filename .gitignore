@@ -19,6 +19,7 @@ programs/src/slideshow/target/
 programs/src/timer/target/
 programs/src/nsxiv/*.o
 programs/src/nsxiv/nsxiv
+programs/src/neovim/
 programs/bin/*
 !programs/bin/
 !programs/bin/*.sh

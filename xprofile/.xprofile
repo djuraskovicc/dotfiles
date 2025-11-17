@@ -8,7 +8,7 @@ xhost +SI:localuser:$(whoami)
 setxkbmap us
 # Here I made program that will cycle through wallpapers
 # It uses xwallpaper to set the wallpaper
-slideshow $HOME/Pictures/WallPaper/Autumn &
+slideshow $HOME/Pictures/WallPaper/Winter &
 health &
 picom -f &
 slstatus &
