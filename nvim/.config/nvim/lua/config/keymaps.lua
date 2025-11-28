@@ -7,10 +7,6 @@ vim.keymap.set("n", "<leader><leader>x", ":source %<CR>")
 vim.keymap.set("n", "<leader>x", ":.lua<CR>")
 vim.keymap.set("v", "<leader>x", ":lua<CR>")
 
--- Quick fix
-vim.keymap.set("n", "N", "<cmd>cnext<CR>")
-vim.keymap.set("n", "P", "<cmd>cprev<CR>")
-
 -- Spawn stuff
 vim.keymap.set("n", "<leader>l", ":Lazy<CR>") -- spawn lazy
 vim.keymap.set("n", "<leader>db", ":Dashboard<CR>") -- go to dashboard
@@ -51,7 +47,7 @@ local function sync_to_phone()
 	local dir_name = vim.fn.fnamemodify(cwd, ":t")
 	local remote_path = string.format("moto:~/projects/%s", dir_name)
 
-	local cmd = string.format("rsync -az --checksum --inplace --delete '%s' '%s'", cwd, remote_path)
+	local cmd = string.format("rsync -az --inplace --delete '%s' '%s'", cwd, remote_path)
 	local exit_code = os.execute(cmd)
 
 	if exit_code == 0 then
@@ -77,7 +73,7 @@ local function toggle_sync()
 		print("🛑 stopped sync for " .. dir)
 	else
 		local cmd = string.format(
-			[[bash -c 'while inotifywait -r -e modify,create,delete,move "%s"; do rsync -az --checksum --delete "%s/" "%s"; done']],
+			[[bash -c 'while inotifywait -r -e modify,create,delete,move "%s"; do rsync -az --delete "%s" "%s"; done']],
 			cwd,
 			cwd,
 			remote

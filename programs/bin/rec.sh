@@ -12,7 +12,7 @@ VIDEO_OUTPUT="$SAVE_PATH/output.mp4"
 
 # If you don't have multiple monitors you can remove this
 # Set recording for HDMI-1 monitor
-MONITOR_OFFSET="0,0" # Coordinates for HDMI-1 from xrandr output
+MONITOR_OFFSET="0,1080" # Coordinates for HDMI-1 from xrandr output
 
 # Audio device
 echo "You can run 'pactl list sources short' to see available audio sources"
