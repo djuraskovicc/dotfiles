@@ -1,0 +1,31 @@
+
+layout{
+    tab name="Coding" {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+
+        pane split_direction="vertical"{
+            pane {
+                name "Code"
+                command "nvim"
+            }
+
+            pane split_direction="horizontal" {
+                pane {
+                    name "Files"
+                    command "yazi"
+                }
+
+                pane {
+                    name "Music"
+                    cwd "~/Music"
+                }
+            }
+        }
+
+        pane size=1 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+}
