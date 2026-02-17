@@ -5,7 +5,7 @@
 xrandr --output HDMI-1 --above eDP-1 --mode 1920x1080
 xhost +SI:localuser:$(whoami)
 
-setxkbmap us
+setxkbmap us -option ctrl:nocaps # Sometimes xmodmap breaks, this should fix it
 [ -f "$HOME/.Xmodmap" ] && xmodmap "$HOME/.Xmodmap"
 
 # Here I made program that will cycle through wallpapers

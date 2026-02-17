@@ -112,7 +112,7 @@
 
 (set-face-attribute 'default nil
 		    :font "JetBrains Mono"
- 		    :height 140
+ 		    :height 120
  		    :weight 'medium)
 
 (set-fontset-font t 'unicode
@@ -130,7 +130,12 @@
 
 (use-package rust-mode 
   :straight t
-  :mode ("\\.rs\\'" . rust-mode))
+  :mode ("\\.rs\\'" . rust-mode)
+  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
+
+(add-hook 'conf-toml-mode-hook (lambda () 
+				 (font-lock-mode -1)
+				 (display-line-numbers-mode)))
 
 (defvar zeko/mode-list
   '((rust-mode . "cargo run")
@@ -330,3 +335,6 @@
 	which-key-max-description-length 25
 	which-key-allow-impercise-window-fit t
 	which-key-separator " → "))
+
+(use-package wttrin :straight t)
+(keymap-set global-map "C-c w w" (lambda () (interactive) (wttrin "Podgorica")))
