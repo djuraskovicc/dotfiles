@@ -22,6 +22,8 @@
 
 (load-theme 'tango-dark t)
 
+(setq eww-search-prefix "http://127.0.0.1:8888/search?q=")
+
 (defvar zeko/cooking-timer-process nil "Timer process for the cooking timer.")
 (defvar zeko/cooking-timer-remaining-time -1 "Remaining time in seconds for cooking timer.")
 (defvar zeko/cooking-timer-sound "~/.emacs.d/sounds/sabaton.mp3" "Sound that's being played when timer is finished.")
@@ -68,7 +70,18 @@
     (yank)
     (newline)))
 
-(setq dired-listing-switches "-lha --group-directories-first --time-style=+%d/%m/%Y")
+(use-package consult
+  :straight t
+  :bind (
+         ("C-s" . consult-line)
+	   ("C-r" . consult-line))
+  :custom
+  (consult-preview-key 'any) 
+  (consult-async-min-input 2))
+
+(use-package dired-preview :straight t)
+(add-hook 'dired-mode-hook (lambda () (dired-preview-mode 1)))
+(setq dired-listing-switches "-lha --time-style=+%d/%m/%Y")
 
 (use-package emms
   :straight t
@@ -108,8 +121,6 @@
       (emms-playlist-set-playlist-buffer buf)
       (emms-add-directory dir))))
 
-(setq eww-search-prefix "http://127.0.0.1:8888/search?q=")
-
 (set-face-attribute 'default nil
 		    :font "JetBrains Mono"
  		    :height 120
@@ -128,14 +139,23 @@
 ;; Uncomment the following line if spacing needs adjusting
 (setq-default line-spacing 0.12)
 
+(electric-pair-mode 1)
+
+;; Disable auto-pairing globally by default using the trick above
+(setq-default electric-pair-inhibit-predicate
+              (lambda (char) (not (use-region-p))))
+
+;; Re enable full auto pairing for elisp mode
+(add-hook 'emacs-lisp-mode-hook
+          (lambda () 
+            (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
+
 (use-package rust-mode 
   :straight t
   :mode ("\\.rs\\'" . rust-mode)
   :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
 
-(add-hook 'conf-toml-mode-hook (lambda () 
-				 (font-lock-mode -1)
-				 (display-line-numbers-mode)))
+(add-hook 'conf-toml-mode-hook (lambda () (display-line-numbers-mode)))
 
 (defvar zeko/mode-list
   '((rust-mode . "cargo run")
@@ -163,10 +183,36 @@
 ;;(tool-bar-mode -1)
 (scroll-bar-mode -1)
 
+(defvar zeko/font-lock-whitelist
+  '(org-mode
+    dired-mode
+    ibuffer-mode
+    vterm-mode)
+  "List of modes that have font-lock-mode enabled.")
+
+;; Filter out font-lock-mode easily
+(defun zeko/font-lock-conditional-enable ()
+  "Enable font-lock-mode only in specific modes."
+  (if (memq major-mode zeko/font-lock-whitelist)
+      (font-lock-mode 1)
+    (font-lock-mode -1)))
+
+(define-globalized-minor-mode zeko/global-font-lock-mode 
+  font-lock-mode 
+  zeko/font-lock-conditional-enable)
+
+(zeko/global-font-lock-mode 1)
+
 (setq display-line-numbers-type 'relative)
 (global-visual-line-mode t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
-(add-hook 'text-mode-hook (lambda () (font-lock-mode -1)))
+
+(use-package orderless
+  :straight t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
 
 (defun zeko/org-babel-tangle-on-save ()
   "Tangle the current buffer if #+auto_tangle: t is present."
@@ -189,15 +235,13 @@
 (use-package org-bullets :straight t)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
-(add-hook 'org-mode-hook #'font-lock-mode)
-
 (electric-indent-mode -1)
 
 (require 'org-tempo)
 
 (setq org-src-fontify-natively nil)
 
-(defun my-org-faces ()
+(defun zeko/org-faces ()
     (set-face-attribute 'org-todo nil :height 0.9)
     (set-face-attribute 'org-document-title nil :height 2.0 :foreground "white")
     (set-face-attribute 'org-level-1 nil :height 1.7)
@@ -209,8 +253,8 @@
     (set-face-attribute 'org-level-7 nil :height 1.1)
     (set-face-attribute 'org-level-8 nil :height 1.0))
 
-(add-hook 'org-mode-hook #'my-org-faces)
-(add-hook 'org-mode-hook (lambda () (face-remap-add-relative 'default :height 130)))
+(add-hook 'org-mode-hook (lambda () (zeko/org-faces)  			   
+			   (face-remap-add-relative 'default :height 130)))
 
 (use-package elfeed :straight t)
 
@@ -242,6 +286,70 @@
 (setq-default elfeed-search-filter "@3-months-ago -buzzword")
 (advice-add #'elfeed-show-entry :after #'zeko/elfeed-show-eww-if-tag-is-browse)
 (add-hook 'elfeed-new-entry-hook #'zeko/elfeed-tag-buzzwords)
+
+(use-package pacmacs 
+  :straight t
+  :hook (pacmacs-mode . (lambda () 
+			  (setq line-spacing 0))))
+
+(defun zeko/prog-mode-setup ()
+  "My custom settings for all programming modes."
+  (display-line-numbers-mode 1))
+
+(add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
+
+(use-package pdf-tools
+  :straight t
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :hook (pdf-view-mode . pdf-isearch-minor-mode))
+
+(use-package vertico
+  :straight t
+  :init
+  (vertico-mode))
+
+(custom-set-faces '(vertico-current ((t (:background "#2e3436" :inherit bold)))))
+
+(defun zeko/run-temple-vm ()
+  "Start the QEMU VM using a fragmented list of arguments."
+  (interactive)
+  (let* ((binary "qemu-system-x86_64")
+         (flags '("-enable-kvm"
+                  "-m 2G"
+                  "-drive file=$HOME/qemu/temple,format=qcow2"
+                  "-machine pcspk-audiodev=snd0"
+                  "-audiodev pa,id=snd0"
+                  "-rtc base=localtime"
+                  "-vga std"))
+         (full-command (mapconcat 'identity (cons binary flags) " ")))
+    (shell-command (concat full-command " &"))))
+
+(define-prefix-command 'zeko/virtual-machine)
+(keymap-set global-map "H-v" 'zeko/virtual-machine)
+
+(keymap-set zeko/virtual-machine "r t" #'zeko/run-temple-vm)
+
+(use-package vterm :straight t)
+
+(use-package which-key
+  :straight t
+  :init (which-key-mode 1)
+  :config
+  (setq which-key-side-window-location 'bottom
+	which-key-sort-order #'which-key-key-order-alpha
+	which-key-sort-uppercase-first t
+	which-key-add-column-padding 1
+	which-key-max-display-columns nil
+	which-key-min-display-lines 6
+	which-key-side-window-slot -10
+	which-key-side-window-max-height 0.25
+	which-key-idle-delay 0.8
+	which-key-max-description-length 25
+	which-key-allow-impercise-window-fit t
+	which-key-separator " → "))
+
+(use-package wttrin :straight t)
+(keymap-set global-map "C-c w w" (lambda () (interactive) (wttrin "Podgorica")))
 
 (defun zeko/ibuffer-toggle ()
   "Toggle ibuffer buffer."
@@ -278,7 +386,7 @@
 
 (keymap-set global-map "H-c" #'zeko/compile-for-major-mode)
 
-;; Rust-specific "Run Options" using lambdas
+;; Rust-specific "Run Options"
 (with-eval-after-load 'rust-mode
   (keymap-set rust-mode-map "H-x r" (lambda () (interactive) (zeko/language-options "cargo build --release")))
   (keymap-set rust-mode-map "H-x t" (lambda () (interactive) (zeko/language-options "cargo test"))))
@@ -302,39 +410,10 @@
 
 (keymap-set global-map "H-y" #'zeko/yank-n-times)
 
-(use-package pacmacs 
-  :straight t
-  :hook (pacmacs-mode . (lambda () 
-			  (setq line-spacing 0))))
+(define-prefix-command 'zeko/vterm)
+(keymap-set zeko/vterm "c" #'vterm-send-C-c)
 
-(defun zeko/prog-mode-setup ()
-  "My custom settings for all programming modes."
-  (display-line-numbers-mode 1)
-  (font-lock-mode -1))
+(keymap-set global-map "C-c t" #'vterm)
 
-(add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
-
-(use-package pdf-tools
-  :straight t
-  :mode ("\\.pdf\\'" . pdf-view-mode)
-  :hook (pdf-view-mode . pdf-isearch-minor-mode))
-
-(use-package which-key
-  :straight t
-  :init (which-key-mode 1)
-  :config
-  (setq which-key-side-window-location 'bottom
-	which-key-sort-order #'which-key-key-order-alpha
-	which-key-sort-uppercase-first t
-	which-key-add-column-padding 1
-	which-key-max-display-columns nil
-	which-key-min-display-lines 6
-	which-key-side-window-slot -10
-	which-key-side-window-max-height 0.25
-	which-key-idle-delay 0.8
-	which-key-max-description-length 25
-	which-key-allow-impercise-window-fit t
-	which-key-separator " → "))
-
-(use-package wttrin :straight t)
-(keymap-set global-map "C-c w w" (lambda () (interactive) (wttrin "Podgorica")))
+(with-eval-after-load 'vterm
+  (keymap-set vterm-mode-map "C-c t" 'zeko/vterm))

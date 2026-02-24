@@ -7,48 +7,58 @@
 #+PROPERTY: header-args :tangle "./config.el"
 
 * Table of contents :toc:
-- [[#important-programs-to-load-first][Important programs to load first]]
+- [[#important-things-to-load-first][Important things to load first]]
   - [[#env][Env]]
   - [[#straight-package-manager][Straight Package Manager]]
   - [[#theme][Theme]]
+- [[#browser][Browser]]
+  - [[#eww-search-engine][Eww search engine]]
+  - [[#elpher][Elpher]]
 - [[#custom-functions][Custom Functions]]
   - [[#cooking-timer][Cooking timer]]
   - [[#yank-n-times][Yank N times]]
+- [[#consult][Consult]]
 - [[#dired][Dired]]
 - [[#emms][EMMS]]
-- [[#eww][Eww]]
 - [[#fonts][Fonts]]
   - [[#setting-the-font-face][Setting The Font Face]]
 - [[#settings-for-programming][Settings for programming]]
+  - [[#electric-pair-mod][Electric pair mod]]
   - [[#rust-settings][Rust settings]]
   - [[#general-compiling-settings][General compiling settings]]
 - [[#graphical-user-interface-tweaks][Graphical User Interface tweaks]]
   - [[#disable-menubar-toolbars-and-scrollbars][Disable Menubar, Toolbars and Scrollbars]]
+  - [[#disable-font-lock-mode][Disable font-lock-mode]]
   - [[#display-line-numbers-and-truncated-lines][Display line numbers and truncated lines]]
+- [[#orderless][Orderless]]
 - [[#org-mode][Org Mode]]
   - [[#auto-tangle-org-file][Auto tangle org file]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#enabling-org-bullets][Enabling Org bullets]]
-  - [[#enable-font-lock-mode][Enable font lock mode]]
   - [[#disable-electric-indent][Disable electric indent]]
   - [[#enable-org-tempo][Enable org tempo]]
   - [[#disable-code-block-highlighting][Disable code block highlighting]]
   - [[#setting-header-font-size][Setting header font size]]
+  - [[#hooks][Hooks]]
 - [[#rss-elfeel][RSS (elfeel)]]
-- [[#keybindings-for-programs][Keybindings for programs]]
+- [[#pacmacs][Pacmacs]]
+- [[#prog-mode][Prog-mode]]
+- [[#pdf-tools][Pdf-tools]]
+- [[#vertico][Vertico]]
+- [[#virtual-machines][Virtual machines]]
+- [[#vterm][Vterm]]
+- [[#which-key][Which key]]
+- [[#wttrin][Wttrin]]
+- [[#keybindings][Keybindings]]
   - [[#ibuffer][Ibuffer]]
   - [[#config][Config]]
   - [[#compiling][Compiling]]
   - [[#elfeed][Elfeed]]
   - [[#emms-1][Emms]]
   - [[#yank-n-times-1][Yank N times]]
-- [[#pacmacs][Pacmacs]]
-- [[#prog-mode][Prog-mode]]
-- [[#pdf-tools][Pdf-tools]]
-- [[#which-key][Which key]]
-- [[#wttrin][Wttrin]]
+  - [[#vterm-1][Vterm]]
 
-* Important programs to load first
+* Important things to load first
 ** Env
 #+begin_src emacs-lisp
 (setenv "LC_COLLATE" "C")
@@ -80,6 +90,12 @@
 #+begin_src emacs-lisp
 (load-theme 'tango-dark t)
 #+end_src
+* Browser
+** Eww search engine
+#+begin_src emacs-lisp
+(setq eww-search-prefix "http://127.0.0.1:8888/search?q=")
+#+end_src
+
 * Custom Functions
 ** Cooking timer
 #+begin_src emacs-lisp
@@ -133,11 +149,25 @@
     (yank)
     (newline)))
 #+end_src
-* Dired
-Edit output of dired
+* Consult
 #+begin_src emacs-lisp
-(setq dired-listing-switches "-lha --group-directories-first --time-style=+%d/%m/%Y")
+(use-package consult
+  :straight t
+  :bind (
+         ("C-s" . consult-line)
+	   ("C-r" . consult-line))
+  :custom
+  (consult-preview-key 'any) 
+  (consult-async-min-input 2))
 #+end_src
+
+* Dired
+#+begin_src emacs-lisp
+  (use-package dired-preview :straight t)
+  (add-hook 'dired-mode-hook (lambda () (dired-preview-mode 1)))
+  (setq dired-listing-switches "-lha --time-style=+%d/%m/%Y")
+#+end_src
+
 * EMMS
 #+begin_src emacs-lisp
   (use-package emms
@@ -179,10 +209,6 @@ Edit output of dired
         (emms-add-directory dir))))
 #+end_src
 
-* Eww
-#+begin_src emacs-lisp
-(setq eww-search-prefix "http://127.0.0.1:8888/search?q=")
-#+end_src
 * Fonts
 Defining the various fonts that Emacs will use
 
@@ -208,19 +234,35 @@ Defining the various fonts that Emacs will use
 #+end_src
 
 * Settings for programming
+** Electric pair mod
+This is one thing that I really missed. Auto closing parenthesis, but there is a catch.
+Here I have made it to perform auto close only in elisp mode, because in other languages
+it annoys me. However, the thing that works globally is marking a region and just typing closing
+parenthesis or quotes at the end and it will surround that area with it.
+
+#+begin_src emacs-lisp
+(electric-pair-mode 1)
+
+;; Disable auto-pairing globally by default using the trick above
+(setq-default electric-pair-inhibit-predicate
+              (lambda (char) (not (use-region-p))))
+
+;; Re enable full auto pairing for elisp mode
+(add-hook 'emacs-lisp-mode-hook
+          (lambda () 
+            (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
+#+end_src
 ** Rust settings
 It's necessary to install rust-mode because Emacs doesn't have it out of the box yet.
 #+begin_src emacs-lisp
-  (use-package rust-mode 
-    :straight t
-    :mode ("\\.rs\\'" . rust-mode)
-    :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
+(use-package rust-mode 
+  :straight t
+  :mode ("\\.rs\\'" . rust-mode)
+  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
 #+end_src
 
 #+begin_src emacs-lisp
-  (add-hook 'conf-toml-mode-hook (lambda () 
-  				 (font-lock-mode -1)
-  				 (display-line-numbers-mode)))
+(add-hook 'conf-toml-mode-hook (lambda () (display-line-numbers-mode)))
 #+end_src
 
 ** General compiling settings
@@ -258,15 +300,48 @@ Make GNU Emacs look a bit better...
   (scroll-bar-mode -1)
 #+end_src
 
+** Disable font-lock-mode
+#+begin_src emacs-lisp
+  (defvar zeko/font-lock-whitelist
+    '(org-mode
+      dired-mode
+      ibuffer-mode
+      vterm-mode)
+    "List of modes that have font-lock-mode enabled.")
+
+  ;; Filter out font-lock-mode easily
+  (defun zeko/font-lock-conditional-enable ()
+    "Enable font-lock-mode only in specific modes."
+    (if (memq major-mode zeko/font-lock-whitelist)
+        (font-lock-mode 1)
+      (font-lock-mode -1)))
+
+  (define-globalized-minor-mode zeko/global-font-lock-mode 
+    font-lock-mode 
+    zeko/font-lock-conditional-enable)
+
+  (zeko/global-font-lock-mode 1)
+#+end_src
+
 ** Display line numbers and truncated lines
 #+begin_src emacs-lisp
 (setq display-line-numbers-type 'relative)
 (global-visual-line-mode t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
-(add-hook 'text-mode-hook (lambda () (font-lock-mode -1)))
 #+end_src
 
+* Orderless
+#+begin_src emacs-lisp
+(use-package orderless
+  :straight t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
 * Org Mode
+There is one caviat with this function. It's stupid simple and it doesn't do well when document
+scales. I will have to do some sort of hashing to improve snappiness and performance. 
 ** Auto tangle org file
 #+begin_src emacs-lisp
 (defun zeko/org-babel-tangle-on-save ()
@@ -298,10 +373,6 @@ Org-bullets gives us pretty bullet points rather than asterisks.
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
 
-** Enable font lock mode
-#+begin_src emacs-lisp
-(add-hook 'org-mode-hook #'font-lock-mode)
-#+end_src
 ** Disable electric indent
 Org mode source blocks have some really weird and annoying default indentation behavior. I think this has to do with
 electric-indent-mode, which is turned on by default in Emacs. Turn this damn thing OFF!
@@ -323,7 +394,7 @@ Default emacs key is C-c C-,
 #+end_src
 ** Setting header font size
 #+begin_src emacs-lisp
-(defun my-org-faces ()
+(defun zeko/org-faces ()
     (set-face-attribute 'org-todo nil :height 0.9)
     (set-face-attribute 'org-document-title nil :height 2.0 :foreground "white")
     (set-face-attribute 'org-level-1 nil :height 1.7)
@@ -334,10 +405,13 @@ Default emacs key is C-c C-,
     (set-face-attribute 'org-level-6 nil :height 1.2)
     (set-face-attribute 'org-level-7 nil :height 1.1)
     (set-face-attribute 'org-level-8 nil :height 1.0))
-
-(add-hook 'org-mode-hook #'my-org-faces)
-(add-hook 'org-mode-hook (lambda () (face-remap-add-relative 'default :height 130)))
 #+end_src
+** Hooks
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook (lambda () (zeko/org-faces)  			   
+			   (face-remap-add-relative 'default :height 130)))
+#+end_src
+
 * RSS (elfeel)
 #+begin_src emacs-lisp
 (use-package elfeed :straight t)
@@ -372,7 +446,92 @@ Default emacs key is C-c C-,
 (add-hook 'elfeed-new-entry-hook #'zeko/elfeed-tag-buzzwords)
 #+end_src
 
-* Keybindings for programs
+* Pacmacs
+#+begin_src emacs-lisp
+  (use-package pacmacs 
+    :straight t
+    :hook (pacmacs-mode . (lambda () 
+  			  (setq line-spacing 0))))
+#+end_src
+* Prog-mode
+#+begin_src emacs-lisp
+  (defun zeko/prog-mode-setup ()
+    "My custom settings for all programming modes."
+    (display-line-numbers-mode 1))
+
+  (add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
+#+end_src
+* Pdf-tools
+#+begin_src emacs-lisp
+(use-package pdf-tools
+  :straight t
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :hook (pdf-view-mode . pdf-isearch-minor-mode))
+#+end_src
+* Vertico
+Make this thing perform auto completion only on TAB. Popups are annoying.
+vertico-flat extensions potentially solves this.
+
+#+begin_src emacs-lisp
+(use-package vertico
+  :straight t
+  :init
+  (vertico-mode))
+
+(custom-set-faces '(vertico-current ((t (:background "#2e3436" :inherit bold)))))
+#+end_src
+* Virtual machines
+#+begin_src emacs-lisp
+(defun zeko/run-temple-vm ()
+  "Start the QEMU VM using a fragmented list of arguments."
+  (interactive)
+  (let* ((binary "qemu-system-x86_64")
+         (flags '("-enable-kvm"
+                  "-m 2G"
+                  "-drive file=$HOME/qemu/temple,format=qcow2"
+                  "-machine pcspk-audiodev=snd0"
+                  "-audiodev pa,id=snd0"
+                  "-rtc base=localtime"
+                  "-vga std"))
+         (full-command (mapconcat 'identity (cons binary flags) " ")))
+    (shell-command (concat full-command " &"))))
+
+(define-prefix-command 'zeko/virtual-machine)
+(keymap-set global-map "H-v" 'zeko/virtual-machine)
+
+(keymap-set zeko/virtual-machine "r t" #'zeko/run-temple-vm)
+#+end_src
+
+* Vterm
+#+begin_src emacs-lisp
+(use-package vterm :straight t)
+#+end_src
+* Which key
+#+begin_src emacs-lisp
+  (use-package which-key
+    :straight t
+    :init (which-key-mode 1)
+    :config
+    (setq which-key-side-window-location 'bottom
+	which-key-sort-order #'which-key-key-order-alpha
+	which-key-sort-uppercase-first t
+	which-key-add-column-padding 1
+	which-key-max-display-columns nil
+	which-key-min-display-lines 6
+	which-key-side-window-slot -10
+	which-key-side-window-max-height 0.25
+	which-key-idle-delay 0.8
+	which-key-max-description-length 25
+	which-key-allow-impercise-window-fit t
+	which-key-separator " → "))
+#+end_src
+* Wttrin
+#+begin_src emacs-lisp  
+(use-package wttrin :straight t)
+(keymap-set global-map "C-c w w" (lambda () (interactive) (wttrin "Podgorica")))
+#+end_src
+
+* Keybindings
 ** Ibuffer
 #+begin_src emacs-lisp
   (defun zeko/ibuffer-toggle ()
@@ -416,7 +575,7 @@ Default emacs key is C-c C-,
 #+begin_src emacs-lisp
 (keymap-set global-map "H-c" #'zeko/compile-for-major-mode)
 
-;; Rust-specific "Run Options" using lambdas
+;; Rust-specific "Run Options"
 (with-eval-after-load 'rust-mode
   (keymap-set rust-mode-map "H-x r" (lambda () (interactive) (zeko/language-options "cargo build --release")))
   (keymap-set rust-mode-map "H-x t" (lambda () (interactive) (zeko/language-options "cargo test"))))
@@ -447,50 +606,14 @@ Default emacs key is C-c C-,
 #+begin_src emacs-lisp
 (keymap-set global-map "H-y" #'zeko/yank-n-times)
 #+end_src
-* Pacmacs
-#+begin_src emacs-lisp
-  (use-package pacmacs 
-    :straight t
-    :hook (pacmacs-mode . (lambda () 
-  			  (setq line-spacing 0))))
-#+end_src
-* Prog-mode
-#+begin_src emacs-lisp
-  (defun zeko/prog-mode-setup ()
-    "My custom settings for all programming modes."
-    (display-line-numbers-mode 1)
-    (font-lock-mode -1))
 
-  (add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
-#+end_src
-* Pdf-tools
+** Vterm
 #+begin_src emacs-lisp
-(use-package pdf-tools
-  :straight t
-  :mode ("\\.pdf\\'" . pdf-view-mode)
-  :hook (pdf-view-mode . pdf-isearch-minor-mode))
-#+end_src
-* Which key
-#+begin_src emacs-lisp
-  (use-package which-key
-    :straight t
-    :init (which-key-mode 1)
-    :config
-    (setq which-key-side-window-location 'bottom
-	which-key-sort-order #'which-key-key-order-alpha
-	which-key-sort-uppercase-first t
-	which-key-add-column-padding 1
-	which-key-max-display-columns nil
-	which-key-min-display-lines 6
-	which-key-side-window-slot -10
-	which-key-side-window-max-height 0.25
-	which-key-idle-delay 0.8
-	which-key-max-description-length 25
-	which-key-allow-impercise-window-fit t
-	which-key-separator " → "))
-#+end_src
-* Wttrin
-#+begin_src emacs-lisp  
-(use-package wttrin :straight t)
-(keymap-set global-map "C-c w w" (lambda () (interactive) (wttrin "Podgorica")))
+(define-prefix-command 'zeko/vterm)
+(keymap-set zeko/vterm "c" #'vterm-send-C-c)
+
+(keymap-set global-map "C-c t" #'vterm)
+
+(with-eval-after-load 'vterm
+  (keymap-set vterm-mode-map "C-c t" 'zeko/vterm))
 #+end_src
