@@ -121,6 +121,37 @@
       (emms-playlist-set-playlist-buffer buf)
       (emms-add-directory dir))))
 
+(setq user-full-name "Petar Đurašković")
+(setq user-mail-address "developmentpetar@gmail.com")
+
+(use-package mu4e
+  :ensure nil
+  ;; As on Arch you have to have load-path
+  :load-path "/usr/share/emacs/site-lisp/mu4e/"
+  :config
+  (setq mu4e-change-filenames-when-moving t)
+  (setq mu4e-update-interval (* 10 60))
+  (setq mu4e-maildir "~/.emacs.d/Mail")
+
+  (setq mu4e-drafts-folder  "/[Gmail].Drafts")
+  (setq mu4e-sent-folder    "/[Gmail].Sent Mail")
+  (setq mu4e-refile-folder  "/[Gmail].All Mail")
+  (setq mu4e-trash-folder   "/[Gmail].Trash")
+
+  (setq message-send-mail-function 'smtpmail-send-it
+    	smtpmail-smtp-server "smtp.gmail.com"
+    	smtpmail-smtp-service 587
+    	smtpmail-stream-type 'starttls)
+
+  (setq auth-sources '(password-store))
+
+  (setq mu4e-maildir-shortcuts
+        '(("/Inbox"               . ?i)
+          ("[Gmail].Sent Mail"    . ?s)
+          ("[Gmail].Trash"        . ?t)
+          ("[Gmail].Drafts Mail"  . ?d)
+          ("[Gmail].All Mail"     . ?a))))
+
 (set-face-attribute 'default nil
 		    :font "JetBrains Mono"
  		    :height 120
