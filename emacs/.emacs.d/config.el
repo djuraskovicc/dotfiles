@@ -24,6 +24,13 @@
 
 (setq eww-search-prefix "http://127.0.0.1:8888/search?q=")
 
+(use-package elpher
+  :straight (elpher :type git :host github :repo "emacsmirror/elpher")
+  :bind ("C-c g" . elpher)
+  :config
+  (setq elpher-open-urls-with-eww t)
+  (setq elpher-user-header t))
+
 (defvar zeko/cooking-timer-process nil "Timer process for the cooking timer.")
 (defvar zeko/cooking-timer-remaining-time -1 "Remaining time in seconds for cooking timer.")
 (defvar zeko/cooking-timer-sound "~/.emacs.d/sounds/sabaton.mp3" "Sound that's being played when timer is finished.")
@@ -73,8 +80,9 @@
 (use-package consult
   :straight t
   :bind (
-         ("C-s" . consult-line)
-	   ("C-r" . consult-line))
+         ("C-c s r" . consult-ripgrep)
+	     ("C-c s f" . consult-fd)
+	     ("C-r" . consult-line)) ;; As I don't need backward isearch
   :custom
   (consult-preview-key 'any) 
   (consult-async-min-input 2))
@@ -130,7 +138,7 @@
   :load-path "/usr/share/emacs/site-lisp/mu4e/"
   :config
   (setq mu4e-change-filenames-when-moving t)
-  (setq mu4e-update-interval (* 10 60))
+  (setq mu4e-get-mail-command "mbsync -a")
   (setq mu4e-maildir "~/.emacs.d/Mail")
 
   (setq mu4e-drafts-folder  "/[Gmail].Drafts")
@@ -139,9 +147,9 @@
   (setq mu4e-trash-folder   "/[Gmail].Trash")
 
   (setq message-send-mail-function 'smtpmail-send-it
-    	smtpmail-smtp-server "smtp.gmail.com"
-    	smtpmail-smtp-service 587
-    	smtpmail-stream-type 'starttls)
+  	smtpmail-smtp-server "smtp.gmail.com"
+  	smtpmail-smtp-service 587
+  	smtpmail-stream-type 'starttls)
 
   (setq auth-sources '(password-store))
 
@@ -151,6 +159,8 @@
           ("[Gmail].Trash"        . ?t)
           ("[Gmail].Drafts Mail"  . ?d)
           ("[Gmail].All Mail"     . ?a))))
+
+(keymap-set global-map "H-e" #'mu4e)
 
 (set-face-attribute 'default nil
 		    :font "JetBrains Mono"
@@ -221,18 +231,14 @@
     vterm-mode)
   "List of modes that have font-lock-mode enabled.")
 
-;; Filter out font-lock-mode easily
-(defun zeko/font-lock-conditional-enable ()
-  "Enable font-lock-mode only in specific modes."
+(defun zeko/around-font-lock-mode (orig-fun &rest args)
+  "Prevent font-lock from turning on unless the mode is whitelisted."
   (if (memq major-mode zeko/font-lock-whitelist)
-      (font-lock-mode 1)
-    (font-lock-mode -1)))
+      (apply orig-fun args)
+    (apply orig-fun '(-1))))
 
-(define-globalized-minor-mode zeko/global-font-lock-mode 
-  font-lock-mode 
-  zeko/font-lock-conditional-enable)
-
-(zeko/global-font-lock-mode 1)
+;; No confetti
+(advice-add 'font-lock-mode :around #'zeko/around-font-lock-mode)
 
 (setq display-line-numbers-type 'relative)
 (global-visual-line-mode t)
@@ -347,7 +353,7 @@
   (let* ((binary "qemu-system-x86_64")
          (flags '("-enable-kvm"
                   "-m 2G"
-                  "-drive file=$HOME/qemu/temple,format=qcow2"
+                  "-drive file=$HOME/qemu/temple.img,format=qcow2"
                   "-machine pcspk-audiodev=snd0"
                   "-audiodev pa,id=snd0"
                   "-rtc base=localtime"
@@ -410,9 +416,9 @@
   (load-file user-init-file))
 
 (define-prefix-command 'zeko/config)
-(keymap-set global-map "C-c e" 'zeko/config)
+(keymap-set global-map "C-c c" 'zeko/config)
 
-(keymap-set 'zeko/config "c" #'zeko/open-config)
+(keymap-set 'zeko/config "e" #'zeko/open-config)
 (keymap-set 'zeko/config "r" #'zeko/reload-init-file)
 
 (keymap-set global-map "H-c" #'zeko/compile-for-major-mode)
