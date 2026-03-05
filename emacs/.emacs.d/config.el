@@ -22,6 +22,8 @@
 
 (load-theme 'tango-dark t)
 
+(setq bookmark-save-flag 1)
+
 (setq eww-search-prefix "http://127.0.0.1:8888/search?q=")
 
 (use-package elpher
@@ -146,12 +148,15 @@
   (setq mu4e-refile-folder  "/[Gmail].All Mail")
   (setq mu4e-trash-folder   "/[Gmail].Trash")
 
-  (setq message-send-mail-function 'smtpmail-send-it
-  	smtpmail-smtp-server "smtp.gmail.com"
-  	smtpmail-smtp-service 587
-  	smtpmail-stream-type 'starttls)
-
+  (require 'auth-source-pass)
+  (auth-source-pass-enable)
   (setq auth-sources '(password-store))
+
+  (setq message-send-mail-function 'smtpmail-send-it
+	    smtpmail-smtp-user "developmentpetar@gmail.com"
+	    smtpmail-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-service 587
+        smtpmail-stream-type 'starttls)
 
   (setq mu4e-maildir-shortcuts
         '(("/Inbox"               . ?i)
