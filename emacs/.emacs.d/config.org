@@ -24,14 +24,15 @@
 - [[#email-mu4e][Email (mu4e)]]
 - [[#fonts][Fonts]]
   - [[#setting-the-font-face][Setting The Font Face]]
-- [[#settings-for-programming][Settings for programming]]
-  - [[#electric-pair-mod][Electric pair mod]]
-  - [[#rust-settings][Rust settings]]
-  - [[#general-compiling-settings][General compiling settings]]
 - [[#graphical-user-interface-tweaks][Graphical User Interface tweaks]]
   - [[#disable-menubar-toolbars-and-scrollbars][Disable Menubar, Toolbars and Scrollbars]]
   - [[#disable-font-lock-mode][Disable font-lock-mode]]
   - [[#display-line-numbers-and-truncated-lines][Display line numbers and truncated lines]]
+- [[#settings-for-programming][Settings for programming]]
+  - [[#electric-pair-mod][Electric pair mod]]
+  - [[#rust-settings][Rust settings]]
+  - [[#general-compiling-settings][General compiling settings]]
+- [[#magit][Magit]]
 - [[#orderless][Orderless]]
 - [[#org-mode][Org Mode]]
   - [[#auto-tangle-org-file][Auto tangle org file]]
@@ -42,7 +43,7 @@
   - [[#disable-code-block-highlighting][Disable code block highlighting]]
   - [[#setting-header-font-size][Setting header font size]]
   - [[#hooks][Hooks]]
-- [[#rss-elfeel][RSS (elfeel)]]
+- [[#rss-elfeed][RSS (elfeed)]]
 - [[#pacmacs][Pacmacs]]
 - [[#prog-mode][Prog-mode]]
 - [[#pdf-tools][Pdf-tools]]
@@ -66,6 +67,7 @@
 (setenv "LC_COLLATE" "C")
 (setq x-hyper-keysym 'Hyper_L)
 #+end_src
+
 ** Straight Package Manager
 #+begin_src emacs-lisp
 (defvar bootstrap-version)
@@ -173,7 +175,7 @@
     :bind (
            ("C-c s r" . consult-ripgrep)
   	     ("C-c s f" . consult-fd)
-  	     ("C-r" . consult-line)) ;; As I don't need backward isearch
+  	     ("H-l"     . consult-line))
     :custom
     (consult-preview-key 'any) 
     (consult-async-min-input 2))
@@ -291,6 +293,43 @@ Defining the various fonts that Emacs will use
   (setq-default line-spacing 0.12)
 #+end_src
 
+* Graphical User Interface tweaks
+Make GNU Emacs look a bit better...
+
+** Disable Menubar, Toolbars and Scrollbars
+#+begin_src emacs-lisp
+  ;; Will uncomment later...
+  ;;(menu-bar-mode -1)
+  ;;(tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+
+** Disable font-lock-mode
+#+begin_src emacs-lisp
+  (defvar zeko/font-lock-whitelist
+    '(org-mode
+      dired-mode
+      ibuffer-mode
+      vterm-mode)
+    "List of modes that have font-lock-mode enabled.")
+
+  (defun zeko/around-font-lock-mode (orig-fun &rest args)
+    "Prevent font-lock from turning on unless the mode is whitelisted."
+    (if (memq major-mode zeko/font-lock-whitelist)
+        (apply orig-fun args)
+      (apply orig-fun '(-1))))
+
+  ;; No confetti
+  (advice-add 'font-lock-mode :around #'zeko/around-font-lock-mode)
+#+end_src
+
+** Display line numbers and truncated lines
+#+begin_src emacs-lisp
+(setq display-line-numbers-type 'relative)
+(global-visual-line-mode t)
+(add-hook 'text-mode-hook #'display-line-numbers-mode)
+#+end_src
+
 * Settings for programming
 ** Electric pair mod
 This is one thing that I really missed. Auto closing parenthesis, but there is a catch.
@@ -347,41 +386,9 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
     (message "No compile command defined for %s" major-mode)))
 #+end_src
 
-* Graphical User Interface tweaks
-Make GNU Emacs look a bit better...
-
-** Disable Menubar, Toolbars and Scrollbars
+* Magit
 #+begin_src emacs-lisp
-  ;; Will uncomment later...
-  ;;(menu-bar-mode -1)
-  ;;(tool-bar-mode -1)
-  (scroll-bar-mode -1)
-#+end_src
-
-** Disable font-lock-mode
-#+begin_src emacs-lisp
-  (defvar zeko/font-lock-whitelist
-    '(org-mode
-      dired-mode
-      ibuffer-mode
-      vterm-mode)
-    "List of modes that have font-lock-mode enabled.")
-
-  (defun zeko/around-font-lock-mode (orig-fun &rest args)
-    "Prevent font-lock from turning on unless the mode is whitelisted."
-    (if (memq major-mode zeko/font-lock-whitelist)
-        (apply orig-fun args)
-      (apply orig-fun '(-1))))
-
-  ;; No confetti
-  (advice-add 'font-lock-mode :around #'zeko/around-font-lock-mode)
-#+end_src
-
-** Display line numbers and truncated lines
-#+begin_src emacs-lisp
-(setq display-line-numbers-type 'relative)
-(global-visual-line-mode t)
-(add-hook 'text-mode-hook #'display-line-numbers-mode)
+(use-package magit :straight t)
 #+end_src
 
 * Orderless
@@ -466,7 +473,7 @@ Default emacs key is C-c C-,
 			   (face-remap-add-relative 'default :height 130)))
 #+end_src
 
-* RSS (elfeel)
+* RSS (elfeed)
 #+begin_src emacs-lisp
 (use-package elfeed :straight t)
 
@@ -558,7 +565,13 @@ vertico-flat-mode potentially solves this.
 
 * Vterm
 #+begin_src emacs-lisp
-(use-package vterm :straight t)
+  (use-package vterm 
+    :straight t
+    :config
+    (defun zeko/vterm-dont-ask-on-kill ()
+      (setq-local kill-buffer-query-functions nil))
+
+    (add-hook 'vterm-mode-hook 'zeko/vterm-dont-ask-on-kill))
 #+end_src
 * Which key
 #+begin_src emacs-lisp

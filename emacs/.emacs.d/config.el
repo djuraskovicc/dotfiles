@@ -84,7 +84,7 @@
   :bind (
          ("C-c s r" . consult-ripgrep)
 	     ("C-c s f" . consult-fd)
-	     ("C-r" . consult-line)) ;; As I don't need backward isearch
+	     ("H-l"     . consult-line))
   :custom
   (consult-preview-key 'any) 
   (consult-async-min-input 2))
@@ -186,6 +186,31 @@
 ;; Uncomment the following line if spacing needs adjusting
 (setq-default line-spacing 0.12)
 
+;; Will uncomment later...
+;;(menu-bar-mode -1)
+;;(tool-bar-mode -1)
+(scroll-bar-mode -1)
+
+(defvar zeko/font-lock-whitelist
+  '(org-mode
+    dired-mode
+    ibuffer-mode
+    vterm-mode)
+  "List of modes that have font-lock-mode enabled.")
+
+(defun zeko/around-font-lock-mode (orig-fun &rest args)
+  "Prevent font-lock from turning on unless the mode is whitelisted."
+  (if (memq major-mode zeko/font-lock-whitelist)
+      (apply orig-fun args)
+    (apply orig-fun '(-1))))
+
+;; No confetti
+(advice-add 'font-lock-mode :around #'zeko/around-font-lock-mode)
+
+(setq display-line-numbers-type 'relative)
+(global-visual-line-mode t)
+(add-hook 'text-mode-hook #'display-line-numbers-mode)
+
 (electric-pair-mode 1)
 
 ;; Disable auto-pairing globally by default using the trick above
@@ -225,30 +250,7 @@
       (select-window (get-buffer-window "*compilation*")))
     (message "No compile command defined for %s" major-mode)))
 
-;; Will uncomment later...
-;;(menu-bar-mode -1)
-;;(tool-bar-mode -1)
-(scroll-bar-mode -1)
-
-(defvar zeko/font-lock-whitelist
-  '(org-mode
-    dired-mode
-    ibuffer-mode
-    vterm-mode)
-  "List of modes that have font-lock-mode enabled.")
-
-(defun zeko/around-font-lock-mode (orig-fun &rest args)
-  "Prevent font-lock from turning on unless the mode is whitelisted."
-  (if (memq major-mode zeko/font-lock-whitelist)
-      (apply orig-fun args)
-    (apply orig-fun '(-1))))
-
-;; No confetti
-(advice-add 'font-lock-mode :around #'zeko/around-font-lock-mode)
-
-(setq display-line-numbers-type 'relative)
-(global-visual-line-mode t)
-(add-hook 'text-mode-hook #'display-line-numbers-mode)
+(use-package magit :straight t)
 
 (use-package orderless
   :straight t
@@ -372,7 +374,13 @@
 
 (keymap-set zeko/virtual-machine "r t" #'zeko/run-temple-vm)
 
-(use-package vterm :straight t)
+(use-package vterm 
+  :straight t
+  :config
+  (defun zeko/vterm-dont-ask-on-kill ()
+    (setq-local kill-buffer-query-functions nil))
+
+  (add-hook 'vterm-mode-hook 'zeko/vterm-dont-ask-on-kill))
 
 (use-package which-key
   :straight t
