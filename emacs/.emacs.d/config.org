@@ -32,6 +32,7 @@
   - [[#electric-pair-mod][Electric pair mod]]
   - [[#rust-settings][Rust settings]]
   - [[#general-compiling-settings][General compiling settings]]
+  - [[#prog-mode][Prog-mode]]
 - [[#magit][Magit]]
 - [[#orderless][Orderless]]
 - [[#org-mode][Org Mode]]
@@ -42,10 +43,10 @@
   - [[#enable-org-tempo][Enable org tempo]]
   - [[#disable-code-block-highlighting][Disable code block highlighting]]
   - [[#setting-header-font-size][Setting header font size]]
+  - [[#ox-gfm][ox-gfm]]
   - [[#hooks][Hooks]]
 - [[#rss-elfeed][RSS (elfeed)]]
 - [[#pacmacs][Pacmacs]]
-- [[#prog-mode][Prog-mode]]
 - [[#pdf-tools][Pdf-tools]]
 - [[#vertico][Vertico]]
 - [[#virtual-machines][Virtual machines]]
@@ -66,6 +67,9 @@
 #+begin_src emacs-lisp
 (setenv "LC_COLLATE" "C")
 (setq x-hyper-keysym 'Hyper_L)
+
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
 #+end_src
 
 ** Straight Package Manager
@@ -183,7 +187,11 @@
 
 * Dired
 #+begin_src emacs-lisp
-  (use-package dired-preview :straight t)
+  (use-package dired-preview
+    :straight t
+    :config
+    ;; set limit to 12 MB
+    (setq dired-preview-max-size (* 12 1024 1024)))
   (add-hook 'dired-mode-hook (lambda () (dired-preview-mode 1)))
   (setq dired-listing-switches "-lha --time-style=+%d/%m/%Y")
 #+end_src
@@ -266,7 +274,7 @@
             ("/[Gmail]/Starred"       . ?f)
             ("/[Gmail]/All Mail"      . ?a))))
 
-  (keymap-set global-map "H-e" #'mu4e)
+  (keymap-set global-map "C-c e" #'mu4e)
 #+end_src
 
 * Fonts
@@ -355,7 +363,7 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
 (use-package rust-mode 
   :straight t
   :mode ("\\.rs\\'" . rust-mode)
-  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
+  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 160))))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -386,7 +394,17 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
     (message "No compile command defined for %s" major-mode)))
 #+end_src
 
+** Prog-mode
+#+begin_src emacs-lisp
+  (defun zeko/prog-mode-setup ()
+    "My custom settings for all programming modes."
+    (display-line-numbers-mode 1))
+
+  (add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
+#+end_src
 * Magit
+This is the best thing man kind created right after C-u.
+
 #+begin_src emacs-lisp
 (use-package magit :straight t)
 #+end_src
@@ -400,6 +418,7 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 #+end_src
+
 * Org Mode
 There is one caviat with this function. It's stupid simple and it doesn't do well when document
 scales. I will have to do some sort of hashing to improve snappiness and performance. 
@@ -467,6 +486,13 @@ Default emacs key is C-c C-,
     (set-face-attribute 'org-level-7 nil :height 1.1)
     (set-face-attribute 'org-level-8 nil :height 1.0))
 #+end_src
+** ox-gfm
+This package is from melpa and it helps with exporting org to md. It is GitHub flavored.
+
+#+begin_src emacs-lisp
+(use-package ox-gfm :straight t)
+#+end_src
+
 ** Hooks
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook (lambda () (zeko/org-faces)  			   
@@ -514,14 +540,6 @@ Default emacs key is C-c C-,
     :hook (pacmacs-mode . (lambda () 
   			  (setq line-spacing 0))))
 #+end_src
-* Prog-mode
-#+begin_src emacs-lisp
-  (defun zeko/prog-mode-setup ()
-    "My custom settings for all programming modes."
-    (display-line-numbers-mode 1))
-
-  (add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
-#+end_src
 * Pdf-tools
 #+begin_src emacs-lisp
 (use-package pdf-tools
@@ -530,9 +548,6 @@ Default emacs key is C-c C-,
   :hook (pdf-view-mode . pdf-isearch-minor-mode))
 #+end_src
 * Vertico
-Make this thing perform auto completion only on TAB. Popups are annoying.
-vertico-flat-mode potentially solves this.
-
 #+begin_src emacs-lisp
 (use-package vertico
   :straight t
@@ -541,6 +556,7 @@ vertico-flat-mode potentially solves this.
 
 (custom-set-faces '(vertico-current ((t (:background "#2e3436" :inherit bold)))))
 #+end_src
+
 * Virtual machines
 #+begin_src emacs-lisp
 (defun zeko/run-temple-vm ()
@@ -668,7 +684,9 @@ vertico-flat-mode potentially solves this.
 (keymap-set 'zeko/emms "q" #'emms-stop)
 (keymap-set 'zeko/emms "p" #'emms-pause)
 (keymap-set 'zeko/emms "f" #'emms-play-file)
+(keymap-set 'zeko/emms "k" #'keep-lines)
 #+end_src
+
 ** Yank N times
 #+begin_src emacs-lisp
 (keymap-set global-map "H-y" #'zeko/yank-n-times)

@@ -1,6 +1,9 @@
 (setenv "LC_COLLATE" "C")
 (setq x-hyper-keysym 'Hyper_L)
 
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name
@@ -89,7 +92,11 @@
   (consult-preview-key 'any) 
   (consult-async-min-input 2))
 
-(use-package dired-preview :straight t)
+(use-package dired-preview
+  :straight t
+  :config
+  ;; set limit to 12 MB
+  (setq dired-preview-max-size (* 12 1024 1024)))
 (add-hook 'dired-mode-hook (lambda () (dired-preview-mode 1)))
 (setq dired-listing-switches "-lha --time-style=+%d/%m/%Y")
 
@@ -166,7 +173,7 @@
           ("/[Gmail]/Starred"       . ?f)
           ("/[Gmail]/All Mail"      . ?a))))
 
-(keymap-set global-map "H-e" #'mu4e)
+(keymap-set global-map "C-c e" #'mu4e)
 
 (set-face-attribute 'default nil
 		    :font "JetBrains Mono"
@@ -225,7 +232,7 @@
 (use-package rust-mode 
   :straight t
   :mode ("\\.rs\\'" . rust-mode)
-  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
+  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 160))))
 
 (add-hook 'conf-toml-mode-hook (lambda () (display-line-numbers-mode)))
 
@@ -249,6 +256,12 @@
       ;; Small delay to get the window appear, then select it
       (select-window (get-buffer-window "*compilation*")))
     (message "No compile command defined for %s" major-mode)))
+
+(defun zeko/prog-mode-setup ()
+  "My custom settings for all programming modes."
+  (display-line-numbers-mode 1))
+
+(add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
 
 (use-package magit :straight t)
 
@@ -298,6 +311,8 @@
     (set-face-attribute 'org-level-7 nil :height 1.1)
     (set-face-attribute 'org-level-8 nil :height 1.0))
 
+(use-package ox-gfm :straight t)
+
 (add-hook 'org-mode-hook (lambda () (zeko/org-faces)  			   
 			   (face-remap-add-relative 'default :height 130)))
 
@@ -336,12 +351,6 @@
   :straight t
   :hook (pacmacs-mode . (lambda () 
 			  (setq line-spacing 0))))
-
-(defun zeko/prog-mode-setup ()
-  "My custom settings for all programming modes."
-  (display-line-numbers-mode 1))
-
-(add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
 
 (use-package pdf-tools
   :straight t
@@ -458,6 +467,7 @@
 (keymap-set 'zeko/emms "q" #'emms-stop)
 (keymap-set 'zeko/emms "p" #'emms-pause)
 (keymap-set 'zeko/emms "f" #'emms-play-file)
+(keymap-set 'zeko/emms "k" #'keep-lines)
 
 (keymap-set global-map "H-y" #'zeko/yank-n-times)
 
