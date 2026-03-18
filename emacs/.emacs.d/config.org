@@ -34,6 +34,7 @@
   - [[#general-compiling-settings][General compiling settings]]
   - [[#prog-mode][Prog-mode]]
 - [[#magit][Magit]]
+- [[#multiple-cursors][Multiple cursors]]
 - [[#orderless][Orderless]]
 - [[#org-mode][Org Mode]]
   - [[#auto-tangle-org-file][Auto tangle org file]]
@@ -409,6 +410,16 @@ This is the best thing man kind created right after C-u.
 (use-package magit :straight t)
 #+end_src
 
+* Multiple cursors
+#+begin_src emacs-lisp
+  (use-package multiple-cursors
+    :straight t
+    :bind (
+    ("C-S-c C-S-c" . mc/edit-lines)
+    ("C->"         . mc/mark-next-like-this)
+    ("C-<"         . mc/mark-previous-like-this)
+    ("C-c C-<"     . mc/mark-all-like-this)))
+#+end_src
 * Orderless
 #+begin_src emacs-lisp
 (use-package orderless
