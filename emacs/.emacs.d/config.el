@@ -218,6 +218,40 @@
 (global-visual-line-mode t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 
+(use-package yasnippet
+  :straight t
+  :config
+  (yas-reload-all)
+  (add-hook 'eglot-managed-mode-hook #'yas-minor-mode))
+
+(use-package yasnippet-snippets :straight t)
+
+(use-package corfu
+  :straight t
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0.1)
+  (corfu-auto-prefix 3))
+
+(use-package eglot
+  :straight (:type built-in)
+  :hook ((c-mode    . eglot-ensure)
+	 (c++-mode  . eglot-ensure)
+         (rust-mode . eglot-ensure))
+  :config
+  (setq eglot-server-programs
+	(append '((c-mode    . ("clangd"))
+		  (c++-mode  . ("clangd"))
+		  (rust-mode . ("rust-analyzer")))
+		eglot-server-programs)))
+
+(use-package cape
+  :straight t
+  :init
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block))
+
 (electric-pair-mode 1)
 
 ;; Disable auto-pairing globally by default using the trick above
@@ -232,7 +266,7 @@
 (use-package rust-mode 
   :straight t
   :mode ("\\.rs\\'" . rust-mode)
-  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 160))))
+  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
 
 (add-hook 'conf-toml-mode-hook (lambda () (display-line-numbers-mode)))
 
@@ -259,9 +293,16 @@
 
 (defun zeko/prog-mode-setup ()
   "My custom settings for all programming modes."
+  (corfu-mode 1)
   (display-line-numbers-mode 1))
 
 (add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
+
+(use-package sudo-edit
+  :straight t
+  :bind (
+	 ("H-x s f" . sudo-edit-find-file)
+	 ("H-x s e" . sudo-edit)))
 
 (use-package magit :straight t)
 

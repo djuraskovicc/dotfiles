@@ -28,11 +28,13 @@
   - [[#disable-menubar-toolbars-and-scrollbars][Disable Menubar, Toolbars and Scrollbars]]
   - [[#disable-font-lock-mode][Disable font-lock-mode]]
   - [[#display-line-numbers-and-truncated-lines][Display line numbers and truncated lines]]
-- [[#settings-for-programming][Settings for programming]]
+- [[#programming-things][Programming things]]
+  - [[#lsp-autocomplete][LSP, Autocomplete]]
   - [[#electric-pair-mod][Electric pair mod]]
   - [[#rust-settings][Rust settings]]
   - [[#general-compiling-settings][General compiling settings]]
-  - [[#prog-mode][Prog-mode]]
+  - [[#prog-mode][Prog mode]]
+- [[#sudo][Sudo]]
 - [[#magit][Magit]]
 - [[#multiple-cursors][Multiple cursors]]
 - [[#orderless][Orderless]]
@@ -339,7 +341,54 @@ Make GNU Emacs look a bit better...
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 #+end_src
 
-* Settings for programming
+* Programming things
+** LSP, Autocomplete
+*** Yasnippets
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :straight t
+    :config
+    (yas-reload-all)
+    (add-hook 'eglot-managed-mode-hook #'yas-minor-mode))
+
+  (use-package yasnippet-snippets :straight t)
+#+end_src
+
+*** Completion Corfu
+#+begin_src emacs-lisp
+(use-package corfu
+  :straight t
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0.1)
+  (corfu-auto-prefix 3))
+#+end_src
+
+*** Eglot
+#+begin_src emacs-lisp
+  (use-package eglot
+    :straight (:type built-in)
+    :hook ((c-mode    . eglot-ensure)
+  	 (c++-mode  . eglot-ensure)
+           (rust-mode . eglot-ensure))
+    :config
+    (setq eglot-server-programs
+  	(append '((c-mode    . ("clangd"))
+  		  (c++-mode  . ("clangd"))
+  		  (rust-mode . ("rust-analyzer")))
+  		eglot-server-programs)))
+#+end_src
+
+*** The bridge (cape)
+#+begin_src emacs-lisp
+  (use-package cape
+    :straight t
+    :init
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block))
+#+end_src
+
 ** Electric pair mod
 This is one thing that I really missed. Auto closing parenthesis, but there is a catch.
 Here I have made it to perform auto close only in elisp mode, because in other languages
@@ -364,7 +413,7 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
 (use-package rust-mode 
   :straight t
   :mode ("\\.rs\\'" . rust-mode)
-  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 160))))
+  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -395,13 +444,23 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
     (message "No compile command defined for %s" major-mode)))
 #+end_src
 
-** Prog-mode
+** Prog mode
 #+begin_src emacs-lisp
   (defun zeko/prog-mode-setup ()
     "My custom settings for all programming modes."
+    (corfu-mode 1)
     (display-line-numbers-mode 1))
 
   (add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
+#+end_src
+
+* Sudo
+#+begin_src emacs-lisp
+  (use-package sudo-edit
+    :straight t
+    :bind (
+  	 ("H-x s f" . sudo-edit-find-file)
+  	 ("H-x s e" . sudo-edit)))
 #+end_src
 * Magit
 This is the best thing man kind created right after C-u.
