@@ -235,15 +235,19 @@
 
 (use-package eglot
   :straight (:type built-in)
+  :bind (:map eglot-mode-map
+  	      ("C-c l r" . eglot-rename)
+  	      ("C-c l d" . eglot-find-declaration)
+	      ("C-c l a" . eglot-code-actions)
+              ("C-c l n" . flymake-goto-next-error)
+              ("C-c l p" . flymake-goto-prev-error)
+              ("C-c l b" . flymake-show-buffer-diagnostics))
   :hook ((c-mode    . eglot-ensure)
-	 (c++-mode  . eglot-ensure)
+  	 (c++-mode  . eglot-ensure)
          (rust-mode . eglot-ensure))
   :config
-  (setq eglot-server-programs
-	(append '((c-mode    . ("clangd"))
-		  (c++-mode  . ("clangd"))
-		  (rust-mode . ("rust-analyzer")))
-		eglot-server-programs)))
+  (add-to-list 'eglot-server-programs '(rust-mode         . ("rust-analyzer")))
+  (add-to-list 'eglot-server-programs '((c-mode c++-mode) . ("clangd"))))
 
 (use-package cape
   :straight t
@@ -444,18 +448,15 @@
   :straight t
   :init (which-key-mode 1)
   :config
-  (setq which-key-side-window-location 'bottom
-	which-key-sort-order #'which-key-key-order-alpha
-	which-key-sort-uppercase-first t
-	which-key-add-column-padding 1
-	which-key-max-display-columns nil
-	which-key-min-display-lines 6
-	which-key-side-window-slot -10
-	which-key-side-window-max-height 0.25
-	which-key-idle-delay 0.8
-	which-key-max-description-length 25
-	which-key-allow-impercise-window-fit t
-	which-key-separator " → "))
+  (setq which-key-popup-type 'minibuffer
+    which-key-side-window-location 'bottom
+    which-key-frame-max-width 6
+	which-key-idle-delay 0.4
+    which-key-frame-max-height 30
+	which-key-max-description-length 30
+	which-key-unicode-correction 3
+    which-key-separator " → "))
+(which-key-add-key-based-replacements "C-c l" "LSP/Eglot")
 
 (use-package wttrin :straight t)
 (keymap-set global-map "C-c w w" (lambda () (interactive) (wttrin "Podgorica")))
