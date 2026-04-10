@@ -25,6 +25,9 @@
 
 (load-theme 'tango-dark t)
 
+(use-package transient
+  :straight t)
+
 (setq bookmark-save-flag 1)
 
 (setq eww-search-prefix "http://127.0.0.1:8888/search?q=")
@@ -99,6 +102,7 @@
   (setq dired-preview-max-size (* 12 1024 1024)))
 (add-hook 'dired-mode-hook (lambda () (dired-preview-mode 1)))
 (setq dired-listing-switches "-lha --time-style=+%d/%m/%Y")
+(setf dired-kill-when-opening-new-dired-buffer t)
 
 (use-package emms
   :straight t
@@ -149,6 +153,7 @@
   (setq mu4e-change-filenames-when-moving t)
   (setq mu4e-get-mail-command "mbsync -a")
   (setq mu4e-maildir "~/.emacs.d/Mail")
+  (setq mu4e-update-interval (* 60 60))
 
   (setq mu4e-drafts-folder  "/[Gmail]/Drafts")
   (setq mu4e-sent-folder    "/[Gmail]/Sent Mail")
@@ -193,9 +198,8 @@
 ;; Uncomment the following line if spacing needs adjusting
 (setq-default line-spacing 0.12)
 
-;; Will uncomment later...
-;;(menu-bar-mode -1)
-;;(tool-bar-mode -1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
 (scroll-bar-mode -1)
 
 (defvar zeko/font-lock-whitelist
@@ -218,62 +222,6 @@
 (global-visual-line-mode t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 
-(use-package yasnippet
-  :straight t
-  :config
-  (yas-reload-all)
-  (add-hook 'eglot-managed-mode-hook #'yas-minor-mode))
-
-(use-package yasnippet-snippets :straight t)
-
-(use-package corfu
-  :straight t
-  :custom
-  (corfu-auto t)
-  (corfu-auto-delay 0.1)
-  (corfu-auto-prefix 3))
-
-(use-package eglot
-  :straight (:type built-in)
-  :bind (:map eglot-mode-map
-  	      ("C-c l r" . eglot-rename)
-  	      ("C-c l d" . eglot-find-declaration)
-	      ("C-c l a" . eglot-code-actions)
-              ("C-c l n" . flymake-goto-next-error)
-              ("C-c l p" . flymake-goto-prev-error)
-              ("C-c l b" . flymake-show-buffer-diagnostics))
-  :hook ((c-mode    . eglot-ensure)
-  	 (c++-mode  . eglot-ensure)
-         (rust-mode . eglot-ensure))
-  :config
-  (add-to-list 'eglot-server-programs '(rust-mode         . ("rust-analyzer")))
-  (add-to-list 'eglot-server-programs '((c-mode c++-mode) . ("clangd"))))
-
-(use-package cape
-  :straight t
-  :init
-  (add-hook 'completion-at-point-functions #'cape-dabbrev)
-  (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-elisp-block))
-
-(electric-pair-mode 1)
-
-;; Disable auto-pairing globally by default using the trick above
-(setq-default electric-pair-inhibit-predicate
-              (lambda (char) (not (use-region-p))))
-
-;; Re enable full auto pairing for elisp mode
-(add-hook 'emacs-lisp-mode-hook
-          (lambda () 
-            (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
-
-(use-package rust-mode 
-  :straight t
-  :mode ("\\.rs\\'" . rust-mode)
-  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
-
-(add-hook 'conf-toml-mode-hook (lambda () (display-line-numbers-mode)))
-
 (defvar zeko/mode-list
   '((rust-mode . "cargo run")
     (c-mode    . "make"))
@@ -295,9 +243,36 @@
       (select-window (get-buffer-window "*compilation*")))
     (message "No compile command defined for %s" major-mode)))
 
+(use-package eglot
+  :straight (:type built-in)
+  :bind (:map eglot-mode-map
+    	      ("C-c l r" . eglot-rename))
+  :config
+  (add-to-list 'eglot-stay-out-of 'flymake)
+  (dolist (mapping zeko/mode-list)
+    (let ((hook (intern (concat (symbol-name (car mapping)) "-hook"))))
+      (add-hook hook #'eglot-ensure))))
+
+(electric-pair-mode 1)
+
+;; Disable auto-pairing globally by default using the trick above
+(setq-default electric-pair-inhibit-predicate
+              (lambda (char) (not (use-region-p))))
+
+;; Re enable full auto pairing for elisp mode
+(add-hook 'emacs-lisp-mode-hook
+          (lambda () 
+            (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
+
+(use-package rust-mode 
+  :straight t
+  :mode ("\\.rs\\'" . rust-mode)
+  :hook (rust-mode . (lambda () (face-remap-add-relative 'default :height 140))))
+
+(add-hook 'conf-toml-mode-hook (lambda () (display-line-numbers-mode)))
+
 (defun zeko/prog-mode-setup ()
   "My custom settings for all programming modes."
-  (corfu-mode 1)
   (display-line-numbers-mode 1))
 
 (add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
@@ -308,7 +283,14 @@
 	 ("H-x s f" . sudo-edit-find-file)
 	 ("H-x s e" . sudo-edit)))
 
-(use-package magit :straight t)
+(use-package sly 
+  :straight t
+  :config
+  (setq inferior-lisp-program "/usr/bin/sbcl"))
+
+(use-package magit 
+  :straight t 
+  :after transient)
 
 (use-package multiple-cursors
   :straight t
@@ -317,6 +299,8 @@
   ("C->"         . mc/mark-next-like-this)
   ("C-<"         . mc/mark-previous-like-this)
   ("C-c C-<"     . mc/mark-all-like-this)))
+
+(repeat-mode 1)
 
 (use-package orderless
   :straight t
@@ -363,8 +347,6 @@
     (set-face-attribute 'org-level-6 nil :height 1.2)
     (set-face-attribute 'org-level-7 nil :height 1.1)
     (set-face-attribute 'org-level-8 nil :height 1.0))
-
-(use-package ox-gfm :straight t)
 
 (add-hook 'org-mode-hook (lambda () (zeko/org-faces)  			   
 			   (face-remap-add-relative 'default :height 130)))

@@ -11,6 +11,7 @@
   - [[#env][Env]]
   - [[#straight-package-manager][Straight Package Manager]]
   - [[#theme][Theme]]
+  - [[#transient][Transient]]
 - [[#browser][Browser]]
   - [[#bookmarks][Bookmarks]]
   - [[#eww-search-engine][Eww search engine]]
@@ -29,14 +30,17 @@
   - [[#disable-font-lock-mode][Disable font-lock-mode]]
   - [[#display-line-numbers-and-truncated-lines][Display line numbers and truncated lines]]
 - [[#programming-things][Programming things]]
-  - [[#lsp-autocomplete][LSP, Autocomplete]]
+  - [[#general-compiling-settings][General compiling settings]]
+  - [[#eglot][Eglot]]
   - [[#electric-pair-mod][Electric pair mod]]
   - [[#rust-settings][Rust settings]]
-  - [[#general-compiling-settings][General compiling settings]]
   - [[#prog-mode][Prog mode]]
 - [[#sudo][Sudo]]
+- [[#sly][SLY]]
 - [[#magit][Magit]]
 - [[#multiple-cursors][Multiple cursors]]
+- [[#modes][Modes]]
+  - [[#repeat-mode][Repeat mode]]
 - [[#orderless][Orderless]]
 - [[#org-mode][Org Mode]]
   - [[#auto-tangle-org-file][Auto tangle org file]]
@@ -46,7 +50,6 @@
   - [[#enable-org-tempo][Enable org tempo]]
   - [[#disable-code-block-highlighting][Disable code block highlighting]]
   - [[#setting-header-font-size][Setting header font size]]
-  - [[#ox-gfm][ox-gfm]]
   - [[#hooks][Hooks]]
 - [[#rss-elfeed][RSS (elfeed)]]
 - [[#pacmacs][Pacmacs]]
@@ -100,6 +103,13 @@
 ** Theme
 #+begin_src emacs-lisp
 (load-theme 'tango-dark t)
+#+end_src
+Mu4e and magit are complaining about transient so just load it from straight at the beginning
+and forget about it.
+** Transient
+#+begin_src emacs-lisp
+(use-package transient
+  :straight t)
 #+end_src
 * Browser
 ** Bookmarks
@@ -197,6 +207,7 @@
     (setq dired-preview-max-size (* 12 1024 1024)))
   (add-hook 'dired-mode-hook (lambda () (dired-preview-mode 1)))
   (setq dired-listing-switches "-lha --time-style=+%d/%m/%Y")
+  (setf dired-kill-when-opening-new-dired-buffer t)
 #+end_src
 
 * EMMS
@@ -253,6 +264,7 @@
     (setq mu4e-change-filenames-when-moving t)
     (setq mu4e-get-mail-command "mbsync -a")
     (setq mu4e-maildir "~/.emacs.d/Mail")
+    (setq mu4e-update-interval (* 60 60))
 
     (setq mu4e-drafts-folder  "/[Gmail]/Drafts")
     (setq mu4e-sent-folder    "/[Gmail]/Sent Mail")
@@ -309,9 +321,8 @@ Make GNU Emacs look a bit better...
 
 ** Disable Menubar, Toolbars and Scrollbars
 #+begin_src emacs-lisp
-  ;; Will uncomment later...
-  ;;(menu-bar-mode -1)
-  ;;(tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
   (scroll-bar-mode -1)
 #+end_src
 
@@ -342,55 +353,41 @@ Make GNU Emacs look a bit better...
 #+end_src
 
 * Programming things
-** LSP, Autocomplete
-*** Yasnippets
+** General compiling settings
 #+begin_src emacs-lisp
-  (use-package yasnippet
-    :straight t
-    :config
-    (yas-reload-all)
-    (add-hook 'eglot-managed-mode-hook #'yas-minor-mode))
+(defvar zeko/mode-list
+  '((rust-mode . "cargo run")
+    (c-mode    . "make"))
+  "Mapping major programming modes to compile commands.")
 
-  (use-package yasnippet-snippets :straight t)
+(defun zeko/language-options (option)
+  "Provide build/compile/test option and switch to that buffer."
+  (when option
+    (compile option)
+    (select-window (get-buffer-window "*compilation*"))))
+
+(defun zeko/compile-for-major-mode ()
+  "Get the compile command for the current major mode and run it."
+  (interactive)
+  (if-let ((command (alist-get major-mode zeko/mode-list)))
+    (progn
+	    (compile command)
+      ;; Small delay to get the window appear, then select it
+      (select-window (get-buffer-window "*compilation*")))
+    (message "No compile command defined for %s" major-mode)))
 #+end_src
 
-*** Completion Corfu
-#+begin_src emacs-lisp
-(use-package corfu
-  :straight t
-  :custom
-  (corfu-auto t)
-  (corfu-auto-delay 0.1)
-  (corfu-auto-prefix 3))
-#+end_src
-
-*** Eglot
+** Eglot
 #+begin_src emacs-lisp
   (use-package eglot
     :straight (:type built-in)
     :bind (:map eglot-mode-map
-    	      ("C-c l r" . eglot-rename)
-    	      ("C-c l d" . eglot-find-declaration)
-  	      ("C-c l a" . eglot-code-actions)
-                ("C-c l n" . flymake-goto-next-error)
-                ("C-c l p" . flymake-goto-prev-error)
-                ("C-c l b" . flymake-show-buffer-diagnostics))
-    :hook ((c-mode    . eglot-ensure)
-    	 (c++-mode  . eglot-ensure)
-           (rust-mode . eglot-ensure))
+      	      ("C-c l r" . eglot-rename))
     :config
-    (add-to-list 'eglot-server-programs '(rust-mode         . ("rust-analyzer")))
-    (add-to-list 'eglot-server-programs '((c-mode c++-mode) . ("clangd"))))
-#+end_src
-
-*** The bridge (cape)
-#+begin_src emacs-lisp
-  (use-package cape
-    :straight t
-    :init
-    (add-hook 'completion-at-point-functions #'cape-dabbrev)
-    (add-hook 'completion-at-point-functions #'cape-file)
-    (add-hook 'completion-at-point-functions #'cape-elisp-block))
+    (add-to-list 'eglot-stay-out-of 'flymake)
+    (dolist (mapping zeko/mode-list)
+      (let ((hook (intern (concat (symbol-name (car mapping)) "-hook"))))
+        (add-hook hook #'eglot-ensure))))
 #+end_src
 
 ** Electric pair mod
@@ -423,36 +420,10 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
 #+begin_src emacs-lisp
 (add-hook 'conf-toml-mode-hook (lambda () (display-line-numbers-mode)))
 #+end_src
-
-** General compiling settings
-#+begin_src emacs-lisp
-(defvar zeko/mode-list
-  '((rust-mode . "cargo run")
-    (c-mode    . "make"))
-  "Mapping major programming modes to compile commands.")
-
-(defun zeko/language-options (option)
-  "Provide build/compile/test option and switch to that buffer."
-  (when option
-    (compile option)
-    (select-window (get-buffer-window "*compilation*"))))
-
-(defun zeko/compile-for-major-mode ()
-  "Get the compile command for the current major mode and run it."
-  (interactive)
-  (if-let ((command (alist-get major-mode zeko/mode-list)))
-    (progn
-	    (compile command)
-      ;; Small delay to get the window appear, then select it
-      (select-window (get-buffer-window "*compilation*")))
-    (message "No compile command defined for %s" major-mode)))
-#+end_src
-
 ** Prog mode
 #+begin_src emacs-lisp
   (defun zeko/prog-mode-setup ()
     "My custom settings for all programming modes."
-    (corfu-mode 1)
     (display-line-numbers-mode 1))
 
   (add-hook 'prog-mode-hook #'zeko/prog-mode-setup)
@@ -466,11 +437,21 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
   	 ("H-x s f" . sudo-edit-find-file)
   	 ("H-x s e" . sudo-edit)))
 #+end_src
+* SLY
+#+begin_src emacs-lisp
+  (use-package sly 
+    :straight t
+    :config
+    (setq inferior-lisp-program "/usr/bin/sbcl"))
+#+end_src
+
 * Magit
 This is the best thing man kind created right after C-u.
 
 #+begin_src emacs-lisp
-(use-package magit :straight t)
+  (use-package magit 
+    :straight t 
+    :after transient)
 #+end_src
 
 * Multiple cursors
@@ -482,6 +463,17 @@ This is the best thing man kind created right after C-u.
     ("C->"         . mc/mark-next-like-this)
     ("C-<"         . mc/mark-previous-like-this)
     ("C-c C-<"     . mc/mark-all-like-this)))
+#+end_src
+* Modes
+** Repeat mode
+This is a great thing that was introduced in Emacs 28+. What is does
+it enables you that instead of going `C-x o C-x o C-x o...` you just
+do `C-x o o o o` as many times as you want. This also work with other
+repetative keybindings as well! To check all key mappings that support 
+repeat-mode do `M-x describe-repeat-maps RET`. 
+
+#+begin_src emacs-lisp
+(repeat-mode 1)
 #+end_src
 * Orderless
 #+begin_src emacs-lisp
@@ -560,13 +552,6 @@ Default emacs key is C-c C-,
     (set-face-attribute 'org-level-7 nil :height 1.1)
     (set-face-attribute 'org-level-8 nil :height 1.0))
 #+end_src
-** ox-gfm
-This package is from melpa and it helps with exporting org to md. It is GitHub flavored.
-
-#+begin_src emacs-lisp
-(use-package ox-gfm :straight t)
-#+end_src
-
 ** Hooks
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook (lambda () (zeko/org-faces)  			   
