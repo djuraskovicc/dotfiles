@@ -10,7 +10,9 @@ setxkbmap us -option ctrl:nocaps # Sometimes xmodmap breaks, this should fix it
 
 # Here I made program that will cycle through wallpapers
 # It uses xwallpaper to set the wallpaper
-slideshow $HOME/Pictures/WallPaper/Spring &
+#slideshow $HOME/Pictures/WallPaper/Spring &
 health &
-fastcompmgr -o 0.4 -r 12 -c -C &
+#fastcompmgr -o 0.4 -r 12 -c -C &
 slstatus &
+
+startdwm.sh

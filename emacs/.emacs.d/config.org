@@ -29,6 +29,7 @@
   - [[#disable-menubar-toolbars-and-scrollbars][Disable Menubar, Toolbars and Scrollbars]]
   - [[#disable-font-lock-mode][Disable font-lock-mode]]
   - [[#display-line-numbers-and-truncated-lines][Display line numbers and truncated lines]]
+  - [[#read-extended-command-predicate][Read extended command predicate]]
 - [[#programming-things][Programming things]]
   - [[#general-compiling-settings][General compiling settings]]
   - [[#eglot][Eglot]]
@@ -350,6 +351,22 @@ Make GNU Emacs look a bit better...
 (setq display-line-numbers-type 'relative)
 (global-visual-line-mode t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
+#+end_src
+
+** Read extended command predicate
+With this set up M-x will hide commands that don't correspond with
+current mode. e.g. it wont show you SLY commands in rust-mode, etc.
+
+There is this `#'command-completion-using-modes-and-keymaps-p` and it's more
+aggressive. It will show commands that are tagged for the buffer plus
+any additional keybindings for that mode. `#'command-completion-default-include-p`
+is the safe option as excludes commands that are tagged for other modes and 
+includes everything else. See more on:
+https://emacsredux.com/blog/2026/04/04/read-extended-command-predicate/
+
+#+begin_src emacs-lisp
+(setq read-extended-command-predicate
+      #'command-completion-default-include-p)
 #+end_src
 
 * Programming things

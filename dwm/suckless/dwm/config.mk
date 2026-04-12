@@ -1,5 +1,5 @@
 # dwm version
-VERSION = 6.5
+VERSION = 6.8
 
 # Customize below to fit your system
 
@@ -25,7 +25,7 @@ FREETYPEINC = /usr/include/freetype2
 INCS = -I${X11INC} -I${FREETYPEINC}
 LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS}
 
-# flags 
+# flags
 CPPFLAGS = -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700L -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
 CFLAGS   = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -O3 -march=znver3 -mtune=native -pipe \
 					 -fstack-protector-strong -D_FORTIFY_SOURCE=2 ${INCS} ${CPPFLAGS}

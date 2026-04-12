@@ -222,6 +222,9 @@
 (global-visual-line-mode t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 
+(setq read-extended-command-predicate
+      #'command-completion-default-include-p)
+
 (defvar zeko/mode-list
   '((rust-mode . "cargo run")
     (c-mode    . "make"))

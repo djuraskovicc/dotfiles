@@ -2,6 +2,7 @@
 # Petar Dj ZSH configuration
 #
 
+
 ### PACKAGE MANAGER ZINIT ###
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 if [ ! -d "$ZINIT_HOME" ]; then
@@ -81,3 +82,7 @@ alias neofetch="fastfetch"
 alias sudo="doas"
 alias n="nvim_fzf.sh"
 alias t="tmux_project.sh"
+
+if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
+    exec startx
+fi
