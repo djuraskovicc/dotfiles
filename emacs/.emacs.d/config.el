@@ -3,6 +3,7 @@
 
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(setq url-user-agent "curl")
 
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -30,8 +31,6 @@
 
 (setq bookmark-save-flag 1)
 
-(setq eww-search-prefix "http://127.0.0.1:8888/search?q=")
-
 (use-package elpher
   :straight (elpher :type git :host github :repo "emacsmirror/elpher")
   :bind ("C-c g" . elpher)
@@ -47,14 +46,15 @@
   "Function that updates echo area with remaining time."
   (setq zeko/cooking-timer-remaining-time (1- zeko/cooking-timer-remaining-time))
   (let ((minutes (floor zeko/cooking-timer-remaining-time 60))
-        (seconds (% zeko/cooking-timer-remaining-time 60)))
+        (seconds (% zeko/cooking-timer-remaining-time 60))
+	      (message-log-max nil)) ;; Prevent message logging into *Messages* buffer
     (message "Timer: %02d:%02d left" minutes seconds)
     (when (eq zeko/cooking-timer-remaining-time 0)
-        (message "Timer: Done!")
-        (emms-play-file zeko/cooking-timer-sound)
-        (cancel-timer zeko/cooking-timer-process)
-        (setq zeko/cooking-timer-process nil)
-        (setq zeko/cooking-timer-remaining-time -1))))
+      (message "Timer: Done!")
+      (emms-play-file zeko/cooking-timer-sound)
+      (cancel-timer zeko/cooking-timer-process)
+      (setq zeko/cooking-timer-process nil)
+      (setq zeko/cooking-timer-remaining-time -1))))
 
 (defun zeko/cooking-timer-cancel ()
   "Cancel the running cooking timer."
@@ -180,6 +180,52 @@
 
 (keymap-set global-map "C-c e" #'mu4e)
 
+(use-package exwm
+  :straight t
+  :if (string= (getenv "CURRENT_WM") "exwm")
+  :config
+  (setq exwm-workspace-number 4)
+
+  (add-hook 'exwm-update-class-hook
+            (lambda () (exwm-workspace-rename-buffer exwm-class-name)))
+
+  (setq exwm-input-global-keys
+        `(([?\s-r] . exwm-reset) ;; s-r: Reset (to line-mode).
+          ([?\s-w] . exwm-workspace-switch) ;; s-w: Switch workspace.
+          ([?\s-&] . (lambda (cmd) ;; s-&: Launch application.
+          	       (interactive (list (read-shell-command "$ ")))
+          	       (start-process-shell-command cmd nil cmd)))
+
+  	      ([?\s-1] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
+          ([?\s-2] . (lambda () (interactive) (exwm-workspace-switch-create 1)))
+          ([?\s-3] . (lambda () (interactive) (exwm-workspace-switch-create 2)))
+          ([?\s-4] . (lambda () (interactive) (exwm-workspace-switch-create 3)))
+
+	      ([?\s-!] . (lambda () (interactive) (exwm-workspace-move-window 0)))
+          ([?\s-@] . (lambda () (interactive) (exwm-workspace-move-window 1)))
+          ([?\s-#] . (lambda () (interactive) (exwm-workspace-move-window 2)))
+          ([?\s-$] . (lambda () (interactive) (exwm-workspace-move-window 3)))))
+
+  (setq exwm-randr-workspace-monitor-plist
+    	'(0 "eDP-1"
+    	  1 "eDP-1"
+    	  2 "HDMI-1"
+    	  3 "HDMI-1"))
+  (add-hook 'exwm-randr-screen-change-hook
+            (lambda ()
+              (start-process-shell-command
+               "xrandr" nil "xrandr --output HDMI-1 --above eDP-1 --mode 1920x1080")))
+  (exwm-randr-mode 1)
+
+  (display-battery-mode 1)
+
+  (setq display-time-day-and-date t)
+  (setq display-time-24hr-format t)
+  (setq display-time-load-average-threshold 0.1) ; Show CPU load
+  (display-time-mode 1)
+
+  (exwm-enable))
+
 (set-face-attribute 'default nil
 		    :font "JetBrains Mono"
  		    :height 120
@@ -206,7 +252,8 @@
   '(org-mode
     dired-mode
     ibuffer-mode
-    vterm-mode)
+    vterm-mode
+    wttrin-mode)
   "List of modes that have font-lock-mode enabled.")
 
 (defun zeko/around-font-lock-mode (orig-fun &rest args)
@@ -227,7 +274,8 @@
 
 (defvar zeko/mode-list
   '((rust-mode . "cargo run")
-    (c-mode    . "make"))
+    (c-mode    . "make")
+    (c++-mode  . "make"))
   "Mapping major programming modes to compile commands.")
 
 (defun zeko/language-options (option)
@@ -288,6 +336,8 @@
 
 (use-package sly 
   :straight t
+  :hook (sly-mrepl-mode-hook . (lambda () 
+				 (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
   :config
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 
@@ -401,25 +451,6 @@
   (vertico-mode))
 
 (custom-set-faces '(vertico-current ((t (:background "#2e3436" :inherit bold)))))
-
-(defun zeko/run-temple-vm ()
-  "Start the QEMU VM using a fragmented list of arguments."
-  (interactive)
-  (let* ((binary "qemu-system-x86_64")
-         (flags '("-enable-kvm"
-                  "-m 2G"
-                  "-drive file=$HOME/qemu/temple.img,format=qcow2"
-                  "-machine pcspk-audiodev=snd0"
-                  "-audiodev pa,id=snd0"
-                  "-rtc base=localtime"
-                  "-vga std"))
-         (full-command (mapconcat 'identity (cons binary flags) " ")))
-    (shell-command (concat full-command " &"))))
-
-(define-prefix-command 'zeko/virtual-machine)
-(keymap-set global-map "H-v" 'zeko/virtual-machine)
-
-(keymap-set zeko/virtual-machine "r t" #'zeko/run-temple-vm)
 
 (use-package vterm 
   :straight t

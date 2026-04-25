@@ -1,18 +1,16 @@
 # For these custom programs below
 [ -f ~/.profile ] && source ~/.profile
 
-# Dual monitor setup. You can commant this if you have one monitor
-xrandr --output HDMI-1 --above eDP-1 --mode 1920x1080
 xhost +SI:localuser:$(whoami)
 
 setxkbmap us -option ctrl:nocaps # Sometimes xmodmap breaks, this should fix it
 [ -f "$HOME/.Xmodmap" ] && xmodmap "$HOME/.Xmodmap"
 
-# Here I made program that will cycle through wallpapers
-# It uses xwallpaper to set the wallpaper
-#slideshow $HOME/Pictures/WallPaper/Spring &
-health &
-#fastcompmgr -o 0.4 -r 12 -c -C &
-slstatus &
+export CURRENT_WM="exwm"
+exec dbus-launch --exit-with-session emacs
 
-startdwm.sh
+#export CURRENT_WM="dwm"
+#xrandr --output HDMI-1 --above eDP-1 --mode 1920x1080
+#health &
+#slstatus &
+#startdwm.sh

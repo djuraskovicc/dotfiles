@@ -7,7 +7,7 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const int user_bh            = 8;        /* 2 is the default spacing around the bar's font */
 static const char *fonts[]          = { "JetBrainsMono Nerd Font:style=Bold:size=12" };
-static const char dmenufont[]       = "JetBrainsMono Nerd Font:style=Bold:size=12";
+static const char dmenufont[]       = "JetBrainsMono Nerd Font:style=Bold:size=14";
 
 // Summer colors
 // col_gray1 = "#222222"
@@ -108,7 +108,7 @@ static const char *downbright[]     = { "brightnessctl", "set", "5%-", NULL };
 static const char *zenbrowser[]     = { "zen-browser", NULL };
 static const char *thunar[]         = { "thunar", NULL };
 static const char *emacs[]          = { "emacsclient", "-c", "-a", "'emacs'", NULL };
-static const char *passmenu[]       = { "passmenu", "-fn", dmenufont, "-sb", col_cyan, "-nb", col_gray4, "-nf", col_gray3, "-sf", col_gray4, NULL };
+static const char *passmenu[]       = { "passmenu", "-sb", col_cyan, "-nb", col_gray2, "-nf", col_gray3, "-sf", col_gray4, NULL };
 static const char *wezterm[]        = { "wezterm", NULL }; // Why not have another one...
 
 /* Change keyboard layout */
