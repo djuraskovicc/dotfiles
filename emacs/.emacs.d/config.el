@@ -216,12 +216,10 @@
               (start-process-shell-command
                "xrandr" nil "xrandr --output HDMI-1 --above eDP-1 --mode 1920x1080")))
   (exwm-randr-mode 1)
-
   (display-battery-mode 1)
 
   (setq display-time-day-and-date t)
   (setq display-time-24hr-format t)
-  (setq display-time-load-average-threshold 0.1) ; Show CPU load
   (display-time-mode 1)
 
   (exwm-enable))
@@ -272,6 +270,11 @@
 (setq read-extended-command-predicate
       #'command-completion-default-include-p)
 
+(use-package sly 
+  :straight t
+  :config
+  (setq inferior-lisp-program "/usr/bin/sbcl"))
+
 (defvar zeko/mode-list
   '((rust-mode . "cargo run")
     (c-mode    . "make")
@@ -294,24 +297,21 @@
       (select-window (get-buffer-window "*compilation*")))
     (message "No compile command defined for %s" major-mode)))
 
-(use-package eglot
-  :straight (:type built-in)
-  :bind (:map eglot-mode-map
-    	      ("C-c l r" . eglot-rename))
-  :config
-  (add-to-list 'eglot-stay-out-of 'flymake)
-  (dolist (mapping zeko/mode-list)
-    (let ((hook (intern (concat (symbol-name (car mapping)) "-hook"))))
-      (add-hook hook #'eglot-ensure))))
-
 (electric-pair-mode 1)
 
 ;; Disable auto-pairing globally by default using the trick above
 (setq-default electric-pair-inhibit-predicate
               (lambda (char) (not (use-region-p))))
 
-;; Re enable full auto pairing for elisp mode
 (add-hook 'emacs-lisp-mode-hook
+          (lambda () 
+            (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
+
+(add-hook 'lisp-mode-hook
+          (lambda () 
+            (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
+
+(add-hook 'sly-mrepl-mode-hook
           (lambda () 
             (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
 
@@ -333,13 +333,6 @@
   :bind (
 	 ("H-x s f" . sudo-edit-find-file)
 	 ("H-x s e" . sudo-edit)))
-
-(use-package sly 
-  :straight t
-  :hook (sly-mrepl-mode-hook . (lambda () 
-				 (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
-  :config
-  (setq inferior-lisp-program "/usr/bin/sbcl"))
 
 (use-package magit 
   :straight t 
@@ -534,6 +527,18 @@
 (keymap-set 'zeko/emms "p" #'emms-pause)
 (keymap-set 'zeko/emms "f" #'emms-play-file)
 (keymap-set 'zeko/emms "k" #'keep-lines)
+
+(defvar-keymap zeko-shuffle-repeat-map
+  :doc "Repeat map for shuffling"
+  :repeat t
+  "m" #'emms-shuffle)
+
+(keymap-set global-map "<f1>" (lambda () (interactive) (shell-command "pactl set-sink-mute @DEFAULT_SINK@ toggle")))
+(keymap-set global-map "<f2>" (lambda () (interactive) (shell-command "pactl set-sink-volume @DEFAULT_SINK@ -5%")))
+(keymap-set global-map "<f3>" (lambda () (interactive) (shell-command "pactl set-sink-volume @DEFAULT_SINK@ +5%")))
+
+(keymap-set global-map "<f5>" (lambda () (interactive) (shell-command "brightnessctl set 5%-")))
+(keymap-set global-map "<f6>" (lambda () (interactive) (shell-command "brightnessctl set +5%")))
 
 (keymap-set global-map "H-y" #'zeko/yank-n-times)
 

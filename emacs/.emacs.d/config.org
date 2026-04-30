@@ -30,14 +30,13 @@
   - [[#disable-font-lock-mode][Disable font-lock-mode]]
   - [[#display-line-numbers-and-truncated-lines][Display line numbers and truncated lines]]
   - [[#read-extended-command-predicate][Read extended command predicate]]
+- [[#sly][SLY]]
 - [[#programming-things][Programming things]]
   - [[#general-compiling-settings][General compiling settings]]
-  - [[#eglot][Eglot]]
   - [[#electric-pair-mod][Electric pair mod]]
   - [[#rust-settings][Rust settings]]
   - [[#prog-mode][Prog mode]]
 - [[#sudo][Sudo]]
-- [[#sly][SLY]]
 - [[#magit][Magit]]
 - [[#multiple-cursors][Multiple cursors]]
 - [[#modes][Modes]]
@@ -65,10 +64,14 @@
   - [[#compiling][Compiling]]
   - [[#elfeed][Elfeed]]
   - [[#emms-1][Emms]]
+  - [[#exwm-1][EXWM]]
   - [[#yank-n-times-1][Yank N times]]
   - [[#vterm-1][Vterm]]
 
 * Important things to load first
+Packages and configurations are not in alphabetical order! If they
+where things wouldn't work properly.
+
 ** Env
 #+begin_src emacs-lisp
 (setenv "LC_COLLATE" "C")
@@ -326,12 +329,10 @@ and forget about it.
                 (start-process-shell-command
                  "xrandr" nil "xrandr --output HDMI-1 --above eDP-1 --mode 1920x1080")))
     (exwm-randr-mode 1)
-
     (display-battery-mode 1)
 
     (setq display-time-day-and-date t)
     (setq display-time-24hr-format t)
-    (setq display-time-load-average-threshold 0.1) ; Show CPU load
     (display-time-mode 1)
 
     (exwm-enable))
@@ -414,6 +415,13 @@ https://emacsredux.com/blog/2026/04/04/read-extended-command-predicate/
       #'command-completion-default-include-p)
 #+end_src
 
+* SLY
+#+begin_src emacs-lisp
+  (use-package sly 
+    :straight t
+    :config
+    (setq inferior-lisp-program "/usr/bin/sbcl"))
+#+end_src
 * Programming things
 ** General compiling settings
 #+begin_src emacs-lisp
@@ -440,19 +448,6 @@ https://emacsredux.com/blog/2026/04/04/read-extended-command-predicate/
     (message "No compile command defined for %s" major-mode)))
 #+end_src
 
-** Eglot
-#+begin_src emacs-lisp
-  (use-package eglot
-    :straight (:type built-in)
-    :bind (:map eglot-mode-map
-      	      ("C-c l r" . eglot-rename))
-    :config
-    (add-to-list 'eglot-stay-out-of 'flymake)
-    (dolist (mapping zeko/mode-list)
-      (let ((hook (intern (concat (symbol-name (car mapping)) "-hook"))))
-        (add-hook hook #'eglot-ensure))))
-#+end_src
-
 ** Electric pair mod
 This is one thing that I really missed. Auto closing parenthesis, but there is a catch.
 Here I have made it to perform auto close only in elisp mode, because in other languages
@@ -466,8 +461,15 @@ parenthesis or quotes at the end and it will surround that area with it.
 (setq-default electric-pair-inhibit-predicate
               (lambda (char) (not (use-region-p))))
 
-;; Re enable full auto pairing for elisp mode
 (add-hook 'emacs-lisp-mode-hook
+          (lambda () 
+            (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
+
+(add-hook 'lisp-mode-hook
+          (lambda () 
+            (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
+
+(add-hook 'sly-mrepl-mode-hook
           (lambda () 
             (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
 #+end_src
@@ -500,16 +502,6 @@ It's necessary to install rust-mode because Emacs doesn't have it out of the box
   	 ("H-x s f" . sudo-edit-find-file)
   	 ("H-x s e" . sudo-edit)))
 #+end_src
-* SLY
-#+begin_src emacs-lisp
-  (use-package sly 
-    :straight t
-    :hook (sly-mrepl-mode-hook . (lambda () 
-  				 (setq-local electric-pair-inhibit-predicate #'electric-pair-default-inhibit)))
-    :config
-    (setq inferior-lisp-program "/usr/bin/sbcl"))
-#+end_src
-
 * Magit
 This is the best thing man kind created right after C-u.
 
@@ -773,19 +765,35 @@ Default emacs key is C-c C-,
 #+end_src
 ** Emms
 #+begin_src emacs-lisp
-(define-prefix-command 'zeko/emms)
-(keymap-set global-map "C-c m" 'zeko/emms)
+  (define-prefix-command 'zeko/emms)
+  (keymap-set global-map "C-c m" 'zeko/emms)
 
-(keymap-set 'zeko/emms "d" #'zeko/emms-playlist-new-named)
-(keymap-set 'zeko/emms "n" #'emms-next)
-(keymap-set 'zeko/emms "m" #'emms-shuffle)
-(keymap-set 'zeko/emms "l" #'emms-previous)
-(keymap-set 'zeko/emms "q" #'emms-stop)
-(keymap-set 'zeko/emms "p" #'emms-pause)
-(keymap-set 'zeko/emms "f" #'emms-play-file)
-(keymap-set 'zeko/emms "k" #'keep-lines)
+  (keymap-set 'zeko/emms "d" #'zeko/emms-playlist-new-named)
+  (keymap-set 'zeko/emms "n" #'emms-next)
+  (keymap-set 'zeko/emms "m" #'emms-shuffle)
+  (keymap-set 'zeko/emms "l" #'emms-previous)
+  (keymap-set 'zeko/emms "q" #'emms-stop)
+  (keymap-set 'zeko/emms "p" #'emms-pause)
+  (keymap-set 'zeko/emms "f" #'emms-play-file)
+  (keymap-set 'zeko/emms "k" #'keep-lines)
+
+  (defvar-keymap zeko-shuffle-repeat-map
+    :doc "Repeat map for shuffling"
+    :repeat t
+    "m" #'emms-shuffle)
 #+end_src
 
+** EXWM
+These are sound and brightness controls
+
+#+begin_src emacs-lisp
+(keymap-set global-map "<f1>" (lambda () (interactive) (shell-command "pactl set-sink-mute @DEFAULT_SINK@ toggle")))
+(keymap-set global-map "<f2>" (lambda () (interactive) (shell-command "pactl set-sink-volume @DEFAULT_SINK@ -5%")))
+(keymap-set global-map "<f3>" (lambda () (interactive) (shell-command "pactl set-sink-volume @DEFAULT_SINK@ +5%")))
+
+(keymap-set global-map "<f5>" (lambda () (interactive) (shell-command "brightnessctl set 5%-")))
+(keymap-set global-map "<f6>" (lambda () (interactive) (shell-command "brightnessctl set +5%")))
+#+end_src
 ** Yank N times
 #+begin_src emacs-lisp
 (keymap-set global-map "H-y" #'zeko/yank-n-times)

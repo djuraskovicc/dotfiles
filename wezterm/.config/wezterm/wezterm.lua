@@ -11,7 +11,6 @@ config.font_size = 14
 config.enable_tab_bar = false
 config.window_decorations = "TITLE | RESIZE"
 
-config.window_background_opacity = 0.9
 config.color_scheme = "Chalk (dark) (terminal.sexy)"
 config.window_padding = {
 	left = 0,
@@ -28,16 +27,5 @@ config.keys = {
 	{ key = "j", mods = "ALT|SHIFT", action = "DecreaseFontSize" }, -- Zoom out
 	{ key = "k", mods = "ALT|SHIFT", action = "IncreaseFontSize" }, -- Zoom in
 }
-
--- Beside Dwm I use Hyprland and for some reason
--- it doesn't work on hyprland unless I disable wayland.
--- This is temporary patch just for Hyprland.
-if os.getenv("XDG_CURRENT_DESKTOP") == "Hyprland" then
-	config.enable_wayland = false
-else
-	config.enable_wayland = true
-end
-
-config.front_end = "OpenGL"
 
 return config
