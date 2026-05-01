@@ -23,15 +23,15 @@
 - [[#emms][EMMS]]
 - [[#email-mu4e][Email (mu4e)]]
 - [[#exwm][EXWM]]
-- [[#fonts][Fonts]]
-  - [[#setting-the-font-face][Setting The Font Face]]
 - [[#graphical-user-interface-tweaks][Graphical User Interface tweaks]]
   - [[#disable-menubar-toolbars-and-scrollbars][Disable Menubar, Toolbars and Scrollbars]]
   - [[#disable-font-lock-mode][Disable font-lock-mode]]
   - [[#display-line-numbers-and-truncated-lines][Display line numbers and truncated lines]]
   - [[#read-extended-command-predicate][Read extended command predicate]]
+  - [[#setting-the-font-face][Setting The Font Face]]
 - [[#sly][SLY]]
 - [[#programming-things][Programming things]]
+  - [[#corfu][Corfu]]
   - [[#general-compiling-settings][General compiling settings]]
   - [[#electric-pair-mod][Electric pair mod]]
   - [[#rust-settings][Rust settings]]
@@ -338,30 +338,6 @@ and forget about it.
     (exwm-enable))
 #+end_src
 
-* Fonts
-Defining the various fonts that Emacs will use
-
-** Setting The Font Face
-#+begin_src emacs-lisp
-  (set-face-attribute 'default nil
-  		    :font "JetBrains Mono"
-   		    :height 120
-   		    :weight 'medium)
-
-  (set-fontset-font t 'unicode
-                  (font-spec :family "Noto Color Emoji"))
-
-  ;; These make commented text and keywords italic.
-  (set-face-attribute 'font-lock-comment-face nil
-  		    :slant 'italic)
-
-  (set-face-attribute 'font-lock-keyword-face nil
-  		    :slant 'italic)
-
-  ;; Uncomment the following line if spacing needs adjusting
-  (setq-default line-spacing 0.12)
-#+end_src
-
 * Graphical User Interface tweaks
 Make GNU Emacs look a bit better...
 
@@ -415,6 +391,26 @@ https://emacsredux.com/blog/2026/04/04/read-extended-command-predicate/
       #'command-completion-default-include-p)
 #+end_src
 
+** Setting The Font Face
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil
+    		    :font "JetBrains Mono"
+     		    :height 120
+     		    :weight 'medium)
+
+  (set-fontset-font t 'unicode
+                    (font-spec :family "Noto Color Emoji"))
+
+  ;; Uncomment the following line if spacing needs adjusting
+  (setq-default line-spacing 0.12)
+
+  ;; When emacsclient starts, there was this weird issue of it not having font that was
+  ;; specified in the configuration. The nil value in set-face-attribure is for current
+  ;; frame. Since emacsclient doesn't have current frame as it runs at the backround as
+  ;; a daemon, it had no way to apply font to it. This add-to-list fixes it.
+  (add-to-list 'default-frame-alist '(font . "JetBrains Mono-12"))
+#+end_src
+
 * SLY
 #+begin_src emacs-lisp
   (use-package sly 
@@ -423,6 +419,18 @@ https://emacsredux.com/blog/2026/04/04/read-extended-command-predicate/
     (setq inferior-lisp-program "/usr/bin/sbcl"))
 #+end_src
 * Programming things
+** Corfu
+#+begin_src emacs-lisp
+  (use-package corfu
+    :straight t
+    :init
+    (global-corfu-mode -1) 
+    (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
+    (add-hook 'lisp-mode-hook #'corfu-mode)
+    (add-hook 'sly-mrepl-mode-hook #'corfu-mode)
+    (add-hook 'lisp-interaction-mode-hook #'corfu-mode))
+#+end_src
+
 ** General compiling settings
 #+begin_src emacs-lisp
 (defvar zeko/mode-list

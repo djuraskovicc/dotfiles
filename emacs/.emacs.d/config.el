@@ -224,24 +224,6 @@
 
   (exwm-enable))
 
-(set-face-attribute 'default nil
-		    :font "JetBrains Mono"
- 		    :height 120
- 		    :weight 'medium)
-
-(set-fontset-font t 'unicode
-                (font-spec :family "Noto Color Emoji"))
-
-;; These make commented text and keywords italic.
-(set-face-attribute 'font-lock-comment-face nil
-		    :slant 'italic)
-
-(set-face-attribute 'font-lock-keyword-face nil
-		    :slant 'italic)
-
-;; Uncomment the following line if spacing needs adjusting
-(setq-default line-spacing 0.12)
-
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
@@ -270,10 +252,36 @@
 (setq read-extended-command-predicate
       #'command-completion-default-include-p)
 
+(set-face-attribute 'default nil
+  		    :font "JetBrains Mono"
+   		    :height 120
+   		    :weight 'medium)
+
+(set-fontset-font t 'unicode
+                  (font-spec :family "Noto Color Emoji"))
+
+;; Uncomment the following line if spacing needs adjusting
+(setq-default line-spacing 0.12)
+
+;; When emacsclient starts, there was this weird issue of it not having font that was
+;; specified in the configuration. The nil value in set-face-attribure is for current
+;; frame. Since emacsclient doesn't have current frame as it runs at the backround as
+;; a daemon, it had no way to apply font to it. This add-to-list fixes it.
+(add-to-list 'default-frame-alist '(font . "JetBrains Mono-12"))
+
 (use-package sly 
   :straight t
   :config
   (setq inferior-lisp-program "/usr/bin/sbcl"))
+
+(use-package corfu
+  :straight t
+  :init
+  (global-corfu-mode -1) 
+  (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
+  (add-hook 'lisp-mode-hook #'corfu-mode)
+  (add-hook 'sly-mrepl-mode-hook #'corfu-mode)
+  (add-hook 'lisp-interaction-mode-hook #'corfu-mode))
 
 (defvar zeko/mode-list
   '((rust-mode . "cargo run")
